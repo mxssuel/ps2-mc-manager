@@ -1,29 +1,13 @@
-/**
- * Os primeiros 28 bytes do cartão de memória são considerados
- * "mágicos".
- */
-export const EXPECTED_BYTE_RANGE_FORMATTED_CARD = [0, 28]
-/**
- * Se o cartão de memória do PS2 estiver formatado,
- * teremos nos bytes mágicos a seguinte mensagem:
- * "Sony PS2 Memory Card Format ".
- * 
- * Essa mensagem corresponde ao seguinte vetor de bytes: [
- * 83, 111, 110, 121, 32, 80, 83, 50, 32, 77, 101, 109, 111, 114,
- * 121, 32, 67, 97, 114, 100, 32, 70, 111, 114, 109, 97, 116, 32
- * ].
- * 
- * Some todos os bytes e teremos o valor 2426, então
- * poderemos presumir que nosso Memory Card está devidamente
- * formatado para uso.
- */
-export const EXPECTED_SUM_VALUE_FORMATTED_CARD = 2426
-/**
- * Para verificarmos se o cartão é válido, podemos inicialmente
- * verificar o primeiro byte e checar se ele coincide com o
- * valor esperado para um cartão formatado.
- */
-export const EXPECTED_FIRST_BYTE_FORMATTED_CARD = 83
+import {
+    EXPECTED_BYTE_RANGE_FORMATTED_CARD,
+    EXPECTED_SUM_VALUE_FORMATTED_CARD,
+    EXPECTED_FIRST_BYTE_FORMATTED_CARD,
+    VERSION_CARD_RANGE,
+    PAGE_SIZE_BYTES_RANGE,
+    PAGES_PER_CLUSTER_RANGE,
+    PAGES_PER_BLOCK_RANGE,
+    CLUSTERS_PER_CARD_RANGE
+} from "./constants.js"
 
 /**
  * Verifica se o cartão de memória é válido.
@@ -45,7 +29,8 @@ export function isValidMemoryCard(mc) {
      * O cartão de memória do PS2 deve conter ao menos
      * 28 bytes com a frase de identificação.
      */
-    if (mc.length < EXPECTED_BYTE_RANGE_FORMATTED_CARD[1]) {
+    if (mc.length < EXPECTED_BYTE_RANGE_FORMATTED_CARD[1] + 1 // n+1
+    ) {
         return false
     }
 
@@ -56,22 +41,72 @@ export function isValidMemoryCard(mc) {
  * Verifica se o cartão de memória está formatado por
  * meio da checagem dos primeiros 28 bytes do arquivo.
  * 
- * @param {*} mc Memory Card
+ * @param {Uint8Array} mc Memory Card
  * @returns {boolean}
  */
 export function isMemoryCardFormatted(mc) {
+
+    const [start, end] = EXPECTED_BYTE_RANGE_FORMATTED_CARD
+
     /*
      * Se o primeiro byte não for igual ao esperado,
      * não faz o menor sentido ficar analisando os demais.
      */
-    if (mc[EXPECTED_BYTE_RANGE_FORMATTED_CARD[0]] !== EXPECTED_FIRST_BYTE_FORMATTED_CARD) {
+    if (mc[start] !== EXPECTED_FIRST_BYTE_FORMATTED_CARD) {
         return false
     }
 
-    /*
+    /**
      * Agora, é só checarmos o valor dos primeiros 28 bytes.
+     * Removi o slice e reduce, evitando cópias do array e
+     * deixando toda operação em um único loop.
      */
-    return mc.slice(
-        EXPECTED_BYTE_RANGE_FORMATTED_CARD[0], EXPECTED_BYTE_RANGE_FORMATTED_CARD[1]
-    ).reduce((acc, cc) => acc + cc, 0) === EXPECTED_SUM_VALUE_FORMATTED_CARD
+    let sum = 0
+
+    for (let i = start, len = end; i <= len; ++i) {
+        sum += mc[i]
+    }
+
+    return sum === EXPECTED_SUM_VALUE_FORMATTED_CARD
+}
+
+export function getMemoryCardVersion(mc) {
+    const [start, end] = VERSION_CARD_RANGE
+
+    /**
+     * Optei por Uint8Array ao invés de slicer,
+     * pois o slicer gera uma cópia do array,
+     * enquanto o Uint8Array cria apenas uma view
+     * para os dados.
+     */
+    return new TextDecoder().decode(new Uint8Array(
+        mc.buffer, start, end - start + 1 // n+1
+    ))
+}
+
+export function getPageSizeBytes(mc) {
+    const [start, end] = PAGE_SIZE_BYTES_RANGE
+
+    return mc[start] | (mc[end] << 8)
+}
+
+export function getPagesPerCluster(mc) {
+    const [start, end] = PAGES_PER_CLUSTER_RANGE
+
+    return mc[start] | (mc[end] << 8)
+}
+
+export function getPagesPerBlock(mc) {
+    const [start, end] = PAGES_PER_BLOCK_RANGE
+
+    return mc[start] | (mc[end] << 8)
+}
+
+export function getClusterPerCard(mc) {
+    const [start, end] = CLUSTERS_PER_CARD_RANGE
+    const bytes = new Uint8Array(
+        mc.buffer, start, end - start + 1 // n+1
+    )
+
+    return (bytes[0] << 0) | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)
 }
