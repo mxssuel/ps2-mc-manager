@@ -1,4 +1,11 @@
 /**
+ * Os primeiros 340 bytes de um memory card
+ * são responsáveis por armazenar os metadados
+ * do sistema de arquivo.
+ */
+export const SUPERBLOCK_SIZE_BYTES = 340
+
+/**
  * Os primeiros 28 bytes do cartão de memória são considerados
  * "mágicos".
  */
@@ -24,8 +31,17 @@ export const EXPECTED_SUM_VALUE_FORMATTED_CARD = 2426
  * valor esperado para um cartão formatado.
  */
 export const EXPECTED_FIRST_BYTE_FORMATTED_CARD = 83
-
+/**
+ * Os bytes no intervalo de 28 a 39 são reservados para a
+ * versão do formato usado no sistema de arquivos no padrão
+ * 1.x.0.0.
+ */
 export const VERSION_CARD_RANGE = [28, 39]
+/**
+ * Regex para validar se a versão está no formato
+ * esperado.
+ */
+export const VALID_VERSION_CARD = /^1\.\d+\.0\.0$/
 
 export const PAGE_SIZE_BYTES_RANGE = [40, 41]
 
