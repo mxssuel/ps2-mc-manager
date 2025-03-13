@@ -1,40 +1,51 @@
 import {
+    SUPERBLOCK_SIZE_BYTES,
     EXPECTED_BYTE_RANGE_FORMATTED_CARD,
     EXPECTED_SUM_VALUE_FORMATTED_CARD,
     EXPECTED_FIRST_BYTE_FORMATTED_CARD,
     VERSION_CARD_RANGE,
+    VALID_VERSION_CARD,
     PAGE_SIZE_BYTES_RANGE,
     PAGES_PER_CLUSTER_RANGE,
     PAGES_PER_BLOCK_RANGE,
     CLUSTERS_PER_CARD_RANGE
 } from "./constants.js"
 
+import { readUint16, readUint32 } from "../utils/bytes.js"
+
 /**
- * Verifica se o cartão de memória é válido.
- * 
- * Optei por filtrar apenas pelos primeiros 28 bytes
- * devido ao fato de ter alguns mods que geram cartões
- * de memória fora do convencional de 8MB, 16MB, etc,
- * podendo chegar até 2GB.
- * 
- * Então, por hora, não vou focar no tamanho do cartão, mas sim,
- * na sua organização interna. Arquivos de qualquer tamanho que passarem
- * pela validação dessa função serão considerados válidos.
+ * Verifica se o cartão de memória é válido,
+ * checando se o arquivo de imagem informado
+ * possui ao menos o tamanho do super bloco e,
+ * se está formatado contendo um número de versão
+ * no padrão 1.x.0.0.
  * 
  * @param {Uint8Array} mc Memory Card
  * @returns {boolean}
  */
 export function isValidMemoryCard(mc) {
-    /*
-     * O cartão de memória do PS2 deve conter ao menos
-     * 28 bytes com a frase de identificação.
+    /**
+     * Optei por filtrar apenas pelo tamanho do Super Bloco,
+     * devido ao fato de ter alguns mods que geram cartões
+     * de memória fora do convencional de 8MB, 16MB, etc,
+     * podendo chegar até 2GB.
+     * 
+     * Então, por hora, não vou focar no tamanho do cartão, mas sim,
+     * na sua organização interna. Arquivos de qualquer tamanho que passarem
+     * pela validação dessa função serão considerados válidos.
      */
-    if (mc.length < EXPECTED_BYTE_RANGE_FORMATTED_CARD[1] + 1 // n+1
-    ) {
+
+    if (mc.length < SUPERBLOCK_SIZE_BYTES) {
         return false
     }
 
-    return isMemoryCardFormatted(mc)
+    if (!isMemoryCardFormatted(mc)) {
+        return false
+    }
+
+    return isValidMemoryCardVersion(
+        getMemoryCardVersion(mc)
+    )
 }
 
 /**
@@ -45,7 +56,6 @@ export function isValidMemoryCard(mc) {
  * @returns {boolean}
  */
 export function isMemoryCardFormatted(mc) {
-
     const [start, end] = EXPECTED_BYTE_RANGE_FORMATTED_CARD
 
     /*
@@ -74,39 +84,32 @@ export function getMemoryCardVersion(mc) {
     const [start, end] = VERSION_CARD_RANGE
 
     /**
-     * Optei por Uint8Array ao invés de slicer,
-     * pois o slicer gera uma cópia do array,
+     * Optei por Uint8Array ao invés de slice,
+     * pois o slice gera uma cópia do array,
      * enquanto o Uint8Array cria apenas uma view
      * para os dados.
      */
     return new TextDecoder().decode(new Uint8Array(
         mc.buffer, start, end - start + 1 // n+1
-    ))
+    )).replace(/\x00/g, '') // Esqueci de remover os caracteres nulos
+}
+
+export function isValidMemoryCardVersion(version) {
+    return VALID_VERSION_CARD.test(version)
 }
 
 export function getPageSizeBytes(mc) {
-    const [start, end] = PAGE_SIZE_BYTES_RANGE
-
-    return mc[start] | (mc[end] << 8)
+    return readUint16(mc, PAGE_SIZE_BYTES_RANGE[0]);
 }
 
 export function getPagesPerCluster(mc) {
-    const [start, end] = PAGES_PER_CLUSTER_RANGE
-
-    return mc[start] | (mc[end] << 8)
+    return readUint16(mc, PAGES_PER_CLUSTER_RANGE[0]);
 }
 
 export function getPagesPerBlock(mc) {
-    const [start, end] = PAGES_PER_BLOCK_RANGE
-
-    return mc[start] | (mc[end] << 8)
+    return readUint16(mc, PAGES_PER_BLOCK_RANGE[0]);
 }
 
 export function getClusterPerCard(mc) {
-    const [start, end] = CLUSTERS_PER_CARD_RANGE
-    const bytes = new Uint8Array(
-        mc.buffer, start, end - start + 1 // n+1
-    )
-
-    return (bytes[0] << 0) | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)
+    return readUint32(mc, CLUSTERS_PER_CARD_RANGE)
 }
