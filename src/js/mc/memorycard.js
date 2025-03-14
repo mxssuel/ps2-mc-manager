@@ -14,11 +14,7 @@ import {
 import { readUint16, readUint32 } from "../utils/bytes.js"
 
 /**
- * Verifica se o cartão de memória é válido,
- * checando se o arquivo de imagem informado
- * possui ao menos o tamanho do super bloco e,
- * se está formatado contendo um número de versão
- * no padrão 1.x.0.0.
+ * Verifica se o cartão de memória é válido.
  * 
  * @param {Uint8Array} mc Memory Card
  * @returns {boolean}
@@ -34,23 +30,15 @@ export function isValidMemoryCard(mc) {
      * na sua organização interna. Arquivos de qualquer tamanho que passarem
      * pela validação dessa função serão considerados válidos.
      */
-
-    if (mc.length < SUPERBLOCK_SIZE_BYTES) {
-        return false
-    }
-
-    if (!isMemoryCardFormatted(mc)) {
-        return false
-    }
-
-    return isValidMemoryCardVersion(
-        getMemoryCardVersion(mc)
-    )
+    return mc.length > SUPERBLOCK_SIZE_BYTES
+        && isMemoryCardFormatted(mc)
+        && isValidMemoryCardVersion(
+            getMemoryCardVersion(mc)
+        )
 }
 
 /**
- * Verifica se o cartão de memória está formatado por
- * meio da checagem dos primeiros 28 bytes do arquivo.
+ * Verifica se o cartão de memória está formatado.
  * 
  * @param {Uint8Array} mc Memory Card
  * @returns {boolean}
@@ -80,6 +68,12 @@ export function isMemoryCardFormatted(mc) {
     return sum === EXPECTED_SUM_VALUE_FORMATTED_CARD
 }
 
+/**
+ * Retorna a versão do formato usado no cartão de memória.
+ * 
+ * @param {Uint8Array} mc Memory Card
+ * @returns {string}
+ */
 export function getMemoryCardVersion(mc) {
     const [start, end] = VERSION_CARD_RANGE
 
@@ -91,25 +85,56 @@ export function getMemoryCardVersion(mc) {
      */
     return new TextDecoder().decode(new Uint8Array(
         mc.buffer, start, end - start + 1 // n+1
-    )).replace(/\x00/g, '') // Esqueci de remover os caracteres nulos
+    )).replaceAll("\x00", "") // Tinha esquecido de remover os caracteres nulos
 }
 
+/**
+ * Verifica se a versão do cartão de memória é válida.
+ * É considerado válido uma versão no formato 1.x.0.0.
+ * 
+ * @param {string} version Versão do cartão.
+ * @returns {boolean}
+ */
 export function isValidMemoryCardVersion(version) {
     return VALID_VERSION_CARD.test(version)
 }
 
+/**
+ * Retorna o tamanho em bytes de uma página.
+ * 
+ * @param {Uint8Array} mc Memory Card
+ * @returns {number}
+ */
 export function getPageSizeBytes(mc) {
-    return readUint16(mc, PAGE_SIZE_BYTES_RANGE[0]);
+    return readUint16(mc, PAGE_SIZE_BYTES_RANGE[0])
 }
 
+/**
+ * Retorna o número de páginas em um cluster.
+ * 
+ * @param {Uint8Array} mc Memory Card
+ * @returns {number}
+ */
 export function getPagesPerCluster(mc) {
-    return readUint16(mc, PAGES_PER_CLUSTER_RANGE[0]);
+    return readUint16(mc, PAGES_PER_CLUSTER_RANGE[0])
 }
 
+/**
+ * Retorna o número de páginas em um erase block.
+ * 
+ * @param {Uint8Array} mc Memory Card
+ * @returns {number}
+ */
 export function getPagesPerBlock(mc) {
-    return readUint16(mc, PAGES_PER_BLOCK_RANGE[0]);
+    return readUint16(mc, PAGES_PER_BLOCK_RANGE[0])
 }
 
+/**
+ * Retorna tamanho total do cartão de memória em clusters.
+ * 
+ * @param {Uint8Array} mc Memory Card
+ * @returns {number}
+ */
 export function getClusterPerCard(mc) {
-    return readUint32(mc, CLUSTERS_PER_CARD_RANGE)
+    return readUint32(mc, CLUSTERS_PER_CARD_RANGE[0])
 }

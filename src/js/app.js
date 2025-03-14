@@ -1,7 +1,7 @@
 import {
     isValidMemoryCard, getMemoryCardVersion, getPageSizeBytes, getPagesPerCluster, getPagesPerBlock,
     getClusterPerCard
-} from "./mc/memory_card.js"
+} from "./mc/memorycard.js"
 
 const file = document.querySelector("input")
 
