@@ -72,5 +72,10 @@ export const CARD_FLAGS = 337
 export const CARD_FLAGS_MASK = {
     ECC: 0x01, // Informa se o cartão suporta código de correção de erros.
     BAD_BLOCKS: 0x08, // Informa que o cartão pode ter blocos corrompidos.
-    ERASE_ZEROS: 0x10 // Informa se o cartão está com os blocos apagados (todos preenchidos com zero).
+    /**
+     * Informa se os blocos apagados têm todos os bits definidos como zero.
+     * Dependendo do cartão, o bit 0 será usado para sinalizar se o bloco
+     * está apagado, nos demais, essa função é atribuida ao bit 1.
+     */
+    ERASE_ZEROS: 0x10
 }
