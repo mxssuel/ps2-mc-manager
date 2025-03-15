@@ -1,3 +1,5 @@
+import { readInt16, readInt32, readInt32List } from "../utils/bytes.js"
+
 import {
     SUPERBLOCK_SIZE_BYTES,
     EXPECTED_BYTE_RANGE_FORMATTED_CARD,
@@ -13,10 +15,8 @@ import {
     ALLOC_END,
     ROOTDIR_CLUSTER,
     BACKUP_BLOCK1,
-    BACKUP_BLOCK2
+    BACKUP_BLOCK2,
 } from "./constants.js"
-
-import { readUint16, readUint32 } from "../utils/bytes.js"
 
 /**
  * Verifica se o cartão de memória é válido.
@@ -111,7 +111,7 @@ export function isValidMemoryCardVersion(version) {
  * @returns {number}
  */
 export function getPageSizeBytes(mc) {
-    return readUint16(mc, PAGE_SIZE_BYTES_RANGE[0])
+    return readInt16(mc, PAGE_SIZE_BYTES_RANGE[0])
 }
 
 /**
@@ -121,7 +121,7 @@ export function getPageSizeBytes(mc) {
  * @returns {number}
  */
 export function getPagesPerCluster(mc) {
-    return readUint16(mc, PAGES_PER_CLUSTER_RANGE[0])
+    return readInt16(mc, PAGES_PER_CLUSTER_RANGE[0])
 }
 
 /**
@@ -131,7 +131,7 @@ export function getPagesPerCluster(mc) {
  * @returns {number}
  */
 export function getPagesPerBlock(mc) {
-    return readUint16(mc, PAGES_PER_BLOCK_RANGE[0])
+    return readInt16(mc, PAGES_PER_BLOCK_RANGE[0])
 }
 
 /**
@@ -141,7 +141,7 @@ export function getPagesPerBlock(mc) {
  * @returns {number}
  */
 export function getClusterPerCard(mc) {
-    return readUint32(mc, CLUSTERS_PER_CARD_RANGE[0])
+    return readInt32(mc, CLUSTERS_PER_CARD_RANGE[0])
 }
 
 /**
@@ -151,11 +151,11 @@ export function getClusterPerCard(mc) {
  * @returns {number}
  */
 export function getAllocOffset(mc) {
-    return readUint16(mc, ALLOC_OFFSET[0]);
+    return readInt16(mc, ALLOC_OFFSET[0]);
 }
 
 export function getAllocEnd(mc) {
-    return readUint16(mc, ALLOC_END[0]);
+    return readInt16(mc, ALLOC_END[0]);
 }
 
 /**
@@ -165,7 +165,7 @@ export function getAllocEnd(mc) {
  * @returns {number}
  */
 export function getRootDirCluster(mc) {
-    return readUint16(mc, ROOTDIR_CLUSTER);
+    return readInt16(mc, ROOTDIR_CLUSTER);
 }
 
 /**
@@ -177,7 +177,7 @@ export function getRootDirCluster(mc) {
  * @returns {number}
  */
 export function getBackupBlock1(mc) {
-    return readUint16(mc, BACKUP_BLOCK1[0]);
+    return readInt16(mc, BACKUP_BLOCK1[0]);
 }
 
 /**
@@ -189,5 +189,5 @@ export function getBackupBlock1(mc) {
  * @returns {number}
  */
 export function getBackupBlock2(mc) {
-    return readUint16(mc, BACKUP_BLOCK2[0]);
+    return readInt16(mc, BACKUP_BLOCK2[0]);
 }

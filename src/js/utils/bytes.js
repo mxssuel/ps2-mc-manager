@@ -5,7 +5,7 @@
  * @param {number} index Índice inicial.
  * @returns {number} Valor de 16 bits.
  */
-export function readUint16(bytes, index) {
+export function readInt16(bytes, index) {
     return bytes[index] | (bytes[index + 1] << 8)
 }
 
@@ -16,7 +16,7 @@ export function readUint16(bytes, index) {
  * @param {number} index Índice inicial.
  * @returns {number} Valor de 32 bits.
  */
-export function readUint32(bytes, index) {
+export function readInt32(bytes, index) {
     //return (view[0] << 0) | (view[1] << 8) | (view[2] << 16) | (view[3] << 24)
 
     /**
@@ -24,7 +24,7 @@ export function readUint32(bytes, index) {
      * fica mais simples de manter.
      */
     const view = new DataView(bytes.buffer, index, 4)
-    return view.getUint32(0, true); // true = little-endian
+    return view.getInt32(0, true); // true = little-endian
 }
 
 /**
@@ -33,9 +33,9 @@ export function readUint32(bytes, index) {
  * @param {Uint8Array} bytes Lista de bytes.
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
- * @returns {Uint32Array} Lista de valores de 32 bits.
+ * @returns {Int32Array} Lista de valores de 32 bits.
  */
-export function readUint32List(bytes, [start, end], inclusive = true) {
+export function readInt32List(bytes, [start, end], inclusive = true) {
     // Ajusta o cálculo do tamanho do intervalo com base no tipo (inclusivo/exclusivo)
     const inclusiveOffset = inclusive ? 1 : 0
     const bytesLen = end - start + inclusiveOffset
@@ -43,9 +43,9 @@ export function readUint32List(bytes, [start, end], inclusive = true) {
     const arrayLen = bytesLen / 4
     const view = new DataView(bytes.buffer, start, bytesLen)
 
-    const list = new Uint32Array(arrayLen)
+    const list = new Int32Array(arrayLen)
     for (let i = 0; i < arrayLen; ++i) {
-        list[i] = view.getUint32(i * 4, true)
+        list[i] = view.getInt32(i * 4, true)
     }
     return list
 }
