@@ -68,3 +68,9 @@ export const BAD_BLOCK_LIST = [208, 335]
 export const CARD_TYPE = 336
 
 export const CARD_FLAGS = 337
+
+export const CARD_FLAGS_MASK = {
+    ECC: 0x01, // Informa se o cartão suporta código de correção de erros.
+    BAD_BLOCKS: 0x08, // Informa que o cartão pode ter blocos corrompidos.
+    ERASE_ZEROS: 0x10 // Informa se o cartão está com os blocos apagados (todos preenchidos com zero).
+}

@@ -19,7 +19,8 @@ import {
     IFC_LIST,
     BAD_BLOCK_LIST,
     CARD_TYPE,
-    CARD_FLAGS
+    CARD_FLAGS,
+    CARD_FLAGS_MASK
 } from "./constants.js"
 
 /**
@@ -209,5 +210,11 @@ export function getCardType(mc) {
 }
 
 export function getCardFlags(mc) {
-    return mc[CARD_FLAGS]
+    const cardFlags = mc[CARD_FLAGS]
+
+    return {
+        useEcc: (cardFlags & CARD_FLAGS_MASK.ECC) !== 0,
+        badBlocks: (cardFlags & CARD_FLAGS_MASK.BAD_BLOCKS) !== 0,
+        eraseZeroes: (cardFlags & CARD_FLAGS_MASK.ERASE_ZEROS) !== 0
+    }
 }
