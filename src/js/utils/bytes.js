@@ -26,3 +26,26 @@ export function readUint32(bytes, index) {
     const view = new DataView(bytes.buffer, index, 4)
     return view.getUint32(0, true); // true = little-endian
 }
+
+/**
+ * Lê uma lista de valores de 32 bits (uint32) a partir de uma lista de bytes.
+ * 
+ * @param {Uint8Array} bytes Lista de bytes.
+ * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
+ * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
+ * @returns {Uint32Array} Lista de valores de 32 bits.
+ */
+export function readUint32List(bytes, [start, end], inclusive = true) {
+    // Ajusta o cálculo do tamanho do intervalo com base no tipo (inclusivo/exclusivo)
+    const inclusiveOffset = inclusive ? 1 : 0
+    const bytesLen = end - start + inclusiveOffset
+
+    const arrayLen = bytesLen / 4
+    const view = new DataView(bytes.buffer, start, bytesLen)
+
+    const list = new Uint32Array(arrayLen)
+    for (let i = 0; i < arrayLen; ++i) {
+        list[i] = view.getUint32(i * 4, true)
+    }
+    return list
+}
