@@ -8,7 +8,12 @@ import {
     PAGE_SIZE_BYTES_RANGE,
     PAGES_PER_CLUSTER_RANGE,
     PAGES_PER_BLOCK_RANGE,
-    CLUSTERS_PER_CARD_RANGE
+    CLUSTERS_PER_CARD_RANGE,
+    ALLOC_OFFSET,
+    ALLOC_END,
+    ROOTDIR_CLUSTER,
+    BACKUP_BLOCK1,
+    BACKUP_BLOCK2
 } from "./constants.js"
 
 import { readUint16, readUint32 } from "../utils/bytes.js"
@@ -137,4 +142,52 @@ export function getPagesPerBlock(mc) {
  */
 export function getClusterPerCard(mc) {
     return readUint32(mc, CLUSTERS_PER_CARD_RANGE[0])
+}
+
+/**
+ * Retorna o offset do primeiro cluster alocável.
+ * 
+ * @param {Uint8Array} mc - Memory Card
+ * @returns {number}
+ */
+export function getAllocOffset(mc) {
+    return readUint16(mc, ALLOC_OFFSET[0]);
+}
+
+export function getAllocEnd(mc) {
+    return readUint16(mc, ALLOC_END[0]);
+}
+
+/**
+ * Retorna o cluster do diretório raiz do cartão de memória.
+ * 
+ * @param {Uint8Array} mc - Memory Card
+ * @returns {number}
+ */
+export function getRootDirCluster(mc) {
+    return readUint16(mc, ROOTDIR_CLUSTER);
+}
+
+/**
+ * Retorna o bloco de backup 1 do cartão de memória.
+ * O bloco de backup 1 é uma cópia de segurança de parte dos metadados
+ * do cartão, usada para recuperação em caso de corrupção.
+ * 
+ * @param {Uint8Array} mc - Memory Card
+ * @returns {number}
+ */
+export function getBackupBlock1(mc) {
+    return readUint16(mc, BACKUP_BLOCK1[0]);
+}
+
+/**
+ * Retorna o bloco de backup 2 do cartão de memória.
+ * O bloco de backup 2 é uma segunda cópia de segurança de parte dos metadados
+ * do cartão, usada para recuperação em caso de corrupção.
+ * 
+ * @param {Uint8Array} mc - Memory Card
+ * @returns {number}
+ */
+export function getBackupBlock2(mc) {
+    return readUint16(mc, BACKUP_BLOCK2[0]);
 }

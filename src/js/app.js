@@ -1,6 +1,15 @@
 import {
-    isValidMemoryCard, getMemoryCardVersion, getPageSizeBytes, getPagesPerCluster, getPagesPerBlock,
-    getClusterPerCard
+    isValidMemoryCard,
+    getMemoryCardVersion,
+    getPageSizeBytes,
+    getPagesPerCluster,
+    getPagesPerBlock,
+    getClusterPerCard,
+    getAllocOffset,
+    getAllocEnd,
+    getRootDirCluster,
+    getBackupBlock1,
+    getBackupBlock2
 } from "./mc/memorycard.js"
 
 const file = document.querySelector("input")
@@ -13,17 +22,27 @@ file.onchange = () => {
     }
 }
 
+const logs = [
+    ["Memory Card Version", (mc) => getMemoryCardVersion(mc)],
+    ["Page Size Bytes", (mc) => getPageSizeBytes(mc)],
+    ["Pages Per Cluster", (mc) => getPagesPerCluster(mc)],
+    ["Pages Per Block", (mc) => getPagesPerBlock(mc)],
+    ["Cluster Per Card", (mc) => getClusterPerCard(mc)],
+    ["Alloc Offset", (mc) => getAllocOffset(mc)],
+    ["Alloc End", (mc) => getAllocEnd(mc)],
+    ["Root Dir Cluster", (mc) => getRootDirCluster(mc)],
+    ["Backup Block 1", (mc) => getBackupBlock1(mc)],
+    ["Backup Block 2", (mc) => getBackupBlock2(mc)],
+]
+
 function data(data) {
 
     const mc = new Uint8Array(data)
 
     if (isValidMemoryCard(mc)) {
         console.log("Formatado")
-        console.log("Memory Card Version", getMemoryCardVersion(mc))
-        console.log("Page Size Bytes", getPageSizeBytes(mc))
-        console.log("Pages Per Cluster", getPagesPerCluster(mc))
-        console.log("Pages Per Block", getPagesPerBlock(mc))
-        console.log("Cluster Per Card", getClusterPerCard(mc))
+
+        logs.forEach(log => console.log(log[0], log[1](mc)))
     } else {
         console.log("Não formatado")
     }

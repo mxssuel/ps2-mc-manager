@@ -50,3 +50,13 @@ export const PAGES_PER_CLUSTER_RANGE = [42, 43]
 export const PAGES_PER_BLOCK_RANGE = [44, 45]
 
 export const CLUSTERS_PER_CARD_RANGE = [48, 51]
+
+export const ALLOC_OFFSET = [52, 55]
+
+export const ALLOC_END = [56, 59]
+
+export const ROOTDIR_CLUSTER = [60, 63]
+
+export const BACKUP_BLOCK1 = [64, 67]
+
+export const BACKUP_BLOCK2 = [68, 71]
