@@ -9,7 +9,11 @@ import {
     getAllocEnd,
     getRootDirCluster,
     getBackupBlock1,
-    getBackupBlock2
+    getBackupBlock2,
+    getIfcList,
+    getBadBlockList,
+    getCardType,
+    getCardFlags
 } from "./mc/memorycard.js"
 
 const file = document.querySelector("input")
@@ -33,6 +37,10 @@ const logs = [
     ["Root Dir Cluster", (mc) => getRootDirCluster(mc)],
     ["Backup Block 1", (mc) => getBackupBlock1(mc)],
     ["Backup Block 2", (mc) => getBackupBlock2(mc)],
+    ["IFC List", (mc) => getIfcList(mc)],
+    ["Bad Block List", (mc) => getBadBlockList(mc)],
+    ["Card Type", (mc) => getCardType(mc)],
+    ["Card Flags", (mc) => getCardFlags(mc)],
 ]
 
 function data(data) {

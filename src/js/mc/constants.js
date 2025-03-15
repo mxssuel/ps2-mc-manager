@@ -60,3 +60,11 @@ export const ROOTDIR_CLUSTER = [60, 63]
 export const BACKUP_BLOCK1 = [64, 67]
 
 export const BACKUP_BLOCK2 = [68, 71]
+
+export const IFC_LIST = [80, 207]
+
+export const BAD_BLOCK_LIST = [208, 335]
+
+export const CARD_TYPE = 336
+
+export const CARD_FLAGS = 337

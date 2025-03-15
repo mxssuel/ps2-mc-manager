@@ -16,6 +16,10 @@ import {
     ROOTDIR_CLUSTER,
     BACKUP_BLOCK1,
     BACKUP_BLOCK2,
+    IFC_LIST,
+    BAD_BLOCK_LIST,
+    CARD_TYPE,
+    CARD_FLAGS
 } from "./constants.js"
 
 /**
@@ -190,4 +194,20 @@ export function getBackupBlock1(mc) {
  */
 export function getBackupBlock2(mc) {
     return readInt16(mc, BACKUP_BLOCK2[0]);
+}
+
+export function getIfcList(mc) {
+    return readInt32List(mc, IFC_LIST)
+}
+
+export function getBadBlockList(mc) {
+    return readInt32List(mc, BAD_BLOCK_LIST)
+}
+
+export function getCardType(mc) {
+    return mc[CARD_TYPE]
+}
+
+export function getCardFlags(mc) {
+    return mc[CARD_FLAGS]
 }
