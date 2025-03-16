@@ -1,26 +1,7 @@
-import { readInt16, readInt32, readInt32List } from "../utils/bytes.js"
+import { readUint16, readInt32, readInt32List } from "../utils/bytes.js"
 
 import {
-    SUPERBLOCK_SIZE_BYTES,
-    EXPECTED_BYTE_RANGE_FORMATTED_CARD,
-    EXPECTED_SUM_VALUE_FORMATTED_CARD,
-    EXPECTED_FIRST_BYTE_FORMATTED_CARD,
-    VERSION_CARD_RANGE,
-    VALID_VERSION_CARD,
-    PAGE_SIZE_BYTES_RANGE,
-    PAGES_PER_CLUSTER_RANGE,
-    PAGES_PER_BLOCK_RANGE,
-    CLUSTERS_PER_CARD_RANGE,
-    ALLOC_OFFSET,
-    ALLOC_END,
-    ROOTDIR_CLUSTER,
-    BACKUP_BLOCK1,
-    BACKUP_BLOCK2,
-    IFC_LIST,
-    BAD_BLOCK_LIST,
-    CARD_TYPE,
-    CARD_FLAGS,
-    CARD_FLAGS_MASK
+    SUPERBLOCK, FILE_SYSTEM_STRUCTURE, FLAGS
 } from "./constants.js"
 
 /**
@@ -40,7 +21,7 @@ export function isValidMemoryCard(mc) {
      * na sua organização interna. Arquivos de qualquer tamanho que passarem
      * pela validação dessa função serão considerados válidos.
      */
-    return mc.length > SUPERBLOCK_SIZE_BYTES
+    return mc.length > SUPERBLOCK.SIZE_BYTES
         && isMemoryCardFormatted(mc)
         && isValidMemoryCardVersion(
             getMemoryCardVersion(mc)
@@ -54,13 +35,13 @@ export function isValidMemoryCard(mc) {
  * @returns {boolean}
  */
 export function isMemoryCardFormatted(mc) {
-    const [start, end] = EXPECTED_BYTE_RANGE_FORMATTED_CARD
+    const [start, end] = SUPERBLOCK.EXPECTED_BYTE_RANGE_FORMATTED_CARD
 
     /*
      * Se o primeiro byte não for igual ao esperado,
      * não faz o menor sentido ficar analisando os demais.
      */
-    if (mc[start] !== EXPECTED_FIRST_BYTE_FORMATTED_CARD) {
+    if (mc[start] !== SUPERBLOCK.EXPECTED_FIRST_BYTE_FORMATTED_CARD) {
         return false
     }
 
@@ -75,7 +56,7 @@ export function isMemoryCardFormatted(mc) {
         sum += mc[i]
     }
 
-    return sum === EXPECTED_SUM_VALUE_FORMATTED_CARD
+    return sum === SUPERBLOCK.EXPECTED_SUM_VALUE_FORMATTED_CARD
 }
 
 /**
@@ -85,7 +66,7 @@ export function isMemoryCardFormatted(mc) {
  * @returns {string}
  */
 export function getMemoryCardVersion(mc) {
-    const [start, end] = VERSION_CARD_RANGE
+    const [start, end] = SUPERBLOCK.VERSION_CARD_RANGE
 
     /**
      * Optei por Uint8Array ao invés de slice,
@@ -99,14 +80,14 @@ export function getMemoryCardVersion(mc) {
 }
 
 /**
- * Verifica se a versão do cartão de memória é válida.
+ * Verifica se a versão do cartão de memória é válido.
  * É considerado válido uma versão no formato 1.x.0.0.
  * 
  * @param {string} version Versão do cartão.
  * @returns {boolean}
  */
 export function isValidMemoryCardVersion(version) {
-    return VALID_VERSION_CARD.test(version)
+    return SUPERBLOCK.VALID_VERSION_CARD.test(version)
 }
 
 /**
@@ -116,7 +97,7 @@ export function isValidMemoryCardVersion(version) {
  * @returns {number}
  */
 export function getPageSizeBytes(mc) {
-    return readInt16(mc, PAGE_SIZE_BYTES_RANGE[0])
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGE_SIZE_BYTES_RANGE[0])
 }
 
 /**
@@ -126,7 +107,7 @@ export function getPageSizeBytes(mc) {
  * @returns {number}
  */
 export function getPagesPerCluster(mc) {
-    return readInt16(mc, PAGES_PER_CLUSTER_RANGE[0])
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGES_PER_CLUSTER_RANGE[0])
 }
 
 /**
@@ -136,7 +117,7 @@ export function getPagesPerCluster(mc) {
  * @returns {number}
  */
 export function getPagesPerBlock(mc) {
-    return readInt16(mc, PAGES_PER_BLOCK_RANGE[0])
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGES_PER_BLOCK_RANGE[0])
 }
 
 /**
@@ -146,7 +127,7 @@ export function getPagesPerBlock(mc) {
  * @returns {number}
  */
 export function getClusterPerCard(mc) {
-    return readInt32(mc, CLUSTERS_PER_CARD_RANGE[0])
+    return readInt32(mc, FILE_SYSTEM_STRUCTURE.CLUSTERS_PER_CARD_RANGE[0])
 }
 
 /**
@@ -156,11 +137,11 @@ export function getClusterPerCard(mc) {
  * @returns {number}
  */
 export function getAllocOffset(mc) {
-    return readInt16(mc, ALLOC_OFFSET[0]);
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ALLOC_OFFSET[0]);
 }
 
 export function getAllocEnd(mc) {
-    return readInt16(mc, ALLOC_END[0]);
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ALLOC_END[0]);
 }
 
 /**
@@ -170,7 +151,7 @@ export function getAllocEnd(mc) {
  * @returns {number}
  */
 export function getRootDirCluster(mc) {
-    return readInt16(mc, ROOTDIR_CLUSTER);
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ROOTDIR_CLUSTER);
 }
 
 /**
@@ -182,7 +163,7 @@ export function getRootDirCluster(mc) {
  * @returns {number}
  */
 export function getBackupBlock1(mc) {
-    return readInt16(mc, BACKUP_BLOCK1[0]);
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.BACKUP_BLOCK1[0]);
 }
 
 /**
@@ -194,27 +175,29 @@ export function getBackupBlock1(mc) {
  * @returns {number}
  */
 export function getBackupBlock2(mc) {
-    return readInt16(mc, BACKUP_BLOCK2[0]);
+    return readUint16(mc, FILE_SYSTEM_STRUCTURE.BACKUP_BLOCK2[0]);
 }
 
 export function getIfcList(mc) {
-    return readInt32List(mc, IFC_LIST)
+    return readInt32List(mc, FILE_SYSTEM_STRUCTURE.IFC_LIST)
 }
 
 export function getBadBlockList(mc) {
-    return readInt32List(mc, BAD_BLOCK_LIST)
+    return readInt32List(mc, FILE_SYSTEM_STRUCTURE.BAD_BLOCK_LIST)
 }
 
 export function getCardType(mc) {
-    return mc[CARD_TYPE]
+    return mc[FLAGS.CARD_TYPE]
 }
 
 export function getCardFlags(mc) {
-    const cardFlags = mc[CARD_FLAGS]
+    const cardFlags = mc[FLAGS.CARD_FLAGS]
 
-    return {
-        useEcc: (cardFlags & CARD_FLAGS_MASK.ECC) !== 0,
-        badBlocks: (cardFlags & CARD_FLAGS_MASK.BAD_BLOCKS) !== 0,
-        eraseZeroes: (cardFlags & CARD_FLAGS_MASK.ERASE_ZEROS) !== 0
+    const flags = {}
+
+    for (const [name, mask] of Object.entries(FLAGS.CARD_FLAGS_MASK)) {
+        flags[name] = (cardFlags & mask) !== 0
     }
+
+    return flags
 }
