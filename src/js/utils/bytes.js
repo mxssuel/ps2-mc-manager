@@ -5,12 +5,12 @@
  * @param {number} index Índice inicial.
  * @returns {number} Valor de 16 bits.
  */
-export function readInt16(bytes, index) {
+export function readUint16(bytes, index) {
     return bytes[index] | (bytes[index + 1] << 8)
 }
 
 /**
- * Lê um valor de 32 bits (uint32) a partir de um array de bytes.
+ * Lê um valor de 32 bits a partir de um array de bytes.
  * 
  * @param {Uint8Array} bytes Array de bytes.
  * @param {number} index Índice inicial.
@@ -24,11 +24,11 @@ export function readInt32(bytes, index) {
      * fica mais simples de manter.
      */
     const view = new DataView(bytes.buffer, index, 4)
-    return view.getInt32(0, true); // true = little-endian
+    return view.getInt32(0, true) // true = little-endian
 }
 
 /**
- * Lê uma lista de valores de 32 bits (uint32) a partir de uma lista de bytes.
+ * Lê uma lista de valores de 32 bits a partir de uma lista de bytes.
  * 
  * @param {Uint8Array} bytes Lista de bytes.
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
