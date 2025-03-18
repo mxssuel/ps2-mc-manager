@@ -1,203 +1,480 @@
-import { readUint16, readInt32, readInt32List } from "../utils/bytes.js"
-
-import {
-    SUPERBLOCK, FILE_SYSTEM_STRUCTURE, FLAGS
-} from "./constants.js"
+import { BYTES, readBytesAsString, validateByteChecksum, readUint16, readInt32, readInt32List } from "../utils/bytes.js"
 
 /**
- * Verifica se o cartão de memória é válido.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {boolean}
+ * Realiza a leitura e escrita de imagens do cartão de memória do
+ * Playstation 2 a partir de um Array de Bytes.
  */
-export function isValidMemoryCard(mc) {
+export class MemoryCard {
     /**
-     * Optei por filtrar apenas pelo tamanho do Super Bloco,
-     * devido ao fato de ter alguns mods que geram cartões
-     * de memória fora do convencional de 8MB, 16MB, etc,
-     * podendo chegar até 2GB.
+     * Construtor da classe MemoryCard.
+     * Inicializa o cartão de memória com os bytes fornecidos e realiza a validação inicial.
      * 
-     * Então, por hora, não vou focar no tamanho do cartão, mas sim,
-     * na sua organização interna. Arquivos de qualquer tamanho que passarem
-     * pela validação dessa função serão considerados válidos.
+     * @param {Uint8Array} bytes Array de bytes que representa o conteúdo do cartão de memória.
      */
-    return mc.length > SUPERBLOCK.SIZE_BYTES
-        && isMemoryCardFormatted(mc)
-        && isValidMemoryCardVersion(
-            getMemoryCardVersion(mc)
-        )
-}
+    constructor(bytes) {
+        this._mc = bytes
 
-/**
- * Verifica se o cartão de memória está formatado.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {boolean}
- */
-export function isMemoryCardFormatted(mc) {
-    const [start, end] = SUPERBLOCK.EXPECTED_BYTE_RANGE_FORMATTED_CARD
-
-    /*
-     * Se o primeiro byte não for igual ao esperado,
-     * não faz o menor sentido ficar analisando os demais.
-     */
-    if (mc[start] !== SUPERBLOCK.EXPECTED_FIRST_BYTE_FORMATTED_CARD) {
-        return false
+        if (
+            /*
+             * Inicialmente, é preciso garantir ao menos
+             * os 340 bytes para leitura dos metadados.
+             */
+            this._checkMinSize()
+        ) {
+            this._setMetaData()
+            this._validateCard()
+        } else {
+            this._setInvalidCardMessage("The memory card must have at least 340 bytes.")
+        }
     }
 
     /**
-     * Agora, é só checarmos o valor dos primeiros 28 bytes.
-     * Removi o slice e reduce, evitando cópias do array e
-     * deixando toda operação em um único loop.
+     * Retorna se o cartão de memória é válido.
+     * 
+     * @returns {[boolean, string]} Um vetor onde:
+     * - O primeiro elemento (boolean) indica se o cartão é válido.
+     * - O segundo elemento (string) contém uma mensagem de erro, se houver.
      */
-    let sum = 0
-
-    for (let i = start, len = end; i <= len; ++i) {
-        sum += mc[i]
+    get isValid() {
+        return this._isValid
     }
-
-    return sum === SUPERBLOCK.EXPECTED_SUM_VALUE_FORMATTED_CARD
-}
-
-/**
- * Retorna a versão do formato usado no cartão de memória.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {string}
- */
-export function getMemoryCardVersion(mc) {
-    const [start, end] = SUPERBLOCK.VERSION_CARD_RANGE
 
     /**
-     * Optei por Uint8Array ao invés de slice,
-     * pois o slice gera uma cópia do array,
-     * enquanto o Uint8Array cria apenas uma view
-     * para os dados.
+     * Retorna a versão do formato usado no cartão de memória (padrão: 1.2.0.0).
+     * 
+     * @returns {string} 1.x.0.0
      */
-    return new TextDecoder().decode(new Uint8Array(
-        mc.buffer, start, end - start + 1 // n+1
-    )).replaceAll("\x00", "") // Tinha esquecido de remover os caracteres nulos
-}
-
-/**
- * Verifica se a versão do cartão de memória é válido.
- * É considerado válido uma versão no formato 1.x.0.0.
- * 
- * @param {string} version Versão do cartão.
- * @returns {boolean}
- */
-export function isValidMemoryCardVersion(version) {
-    return SUPERBLOCK.VALID_VERSION_CARD.test(version)
-}
-
-/**
- * Retorna o tamanho em bytes de uma página.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {number}
- */
-export function getPageSizeBytes(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGE_SIZE_BYTES_RANGE[0])
-}
-
-/**
- * Retorna o número de páginas em um cluster.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {number}
- */
-export function getPagesPerCluster(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGES_PER_CLUSTER_RANGE[0])
-}
-
-/**
- * Retorna o número de páginas em um erase block.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {number}
- */
-export function getPagesPerBlock(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.PAGES_PER_BLOCK_RANGE[0])
-}
-
-/**
- * Retorna tamanho total do cartão de memória em clusters.
- * 
- * @param {Uint8Array} mc Memory Card
- * @returns {number}
- */
-export function getClusterPerCard(mc) {
-    return readInt32(mc, FILE_SYSTEM_STRUCTURE.CLUSTERS_PER_CARD_RANGE[0])
-}
-
-/**
- * Retorna o offset do primeiro cluster alocável.
- * 
- * @param {Uint8Array} mc - Memory Card
- * @returns {number}
- */
-export function getAllocOffset(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ALLOC_OFFSET[0]);
-}
-
-export function getAllocEnd(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ALLOC_END[0]);
-}
-
-/**
- * Retorna o cluster do diretório raiz do cartão de memória.
- * 
- * @param {Uint8Array} mc - Memory Card
- * @returns {number}
- */
-export function getRootDirCluster(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.ROOTDIR_CLUSTER);
-}
-
-/**
- * Retorna o bloco de backup 1 do cartão de memória.
- * O bloco de backup 1 é uma cópia de segurança de parte dos metadados
- * do cartão, usada para recuperação em caso de corrupção.
- * 
- * @param {Uint8Array} mc - Memory Card
- * @returns {number}
- */
-export function getBackupBlock1(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.BACKUP_BLOCK1[0]);
-}
-
-/**
- * Retorna o bloco de backup 2 do cartão de memória.
- * O bloco de backup 2 é uma segunda cópia de segurança de parte dos metadados
- * do cartão, usada para recuperação em caso de corrupção.
- * 
- * @param {Uint8Array} mc - Memory Card
- * @returns {number}
- */
-export function getBackupBlock2(mc) {
-    return readUint16(mc, FILE_SYSTEM_STRUCTURE.BACKUP_BLOCK2[0]);
-}
-
-export function getIfcList(mc) {
-    return readInt32List(mc, FILE_SYSTEM_STRUCTURE.IFC_LIST)
-}
-
-export function getBadBlockList(mc) {
-    return readInt32List(mc, FILE_SYSTEM_STRUCTURE.BAD_BLOCK_LIST)
-}
-
-export function getCardType(mc) {
-    return mc[FLAGS.CARD_TYPE]
-}
-
-export function getCardFlags(mc) {
-    const cardFlags = mc[FLAGS.CARD_FLAGS]
-
-    const flags = {}
-
-    for (const [name, mask] of Object.entries(FLAGS.CARD_FLAGS_MASK)) {
-        flags[name] = (cardFlags & mask) !== 0
+    get version() {
+        return this._version
     }
 
-    return flags
+    /**
+     * Retorna o tamanho em bytes de cada página (padrão: 512 bytes).
+     * 
+     * @returns {number}
+     */
+    get pageSize() {
+        return this._pageSize
+    }
+
+    /**
+     * Retorna a quantidade páginas que um cluster possui (padrão: 2 páginas).
+     * 
+     * @returns {number}
+     */
+    get pagesPerCluster() {
+        return this._pagesPerCluster
+    }
+
+    /**
+     * Retorna a quantidade de páginas que devem ser apagadas por vez (padrão: 16).
+     * 
+     * No sistema do Memory Card ao apagar um dado, deve-se apagar
+     * uma certa quantidade de páginas de uma única vez e depois
+     * reescrever as informações que não eram para serem apagadas.
+     * 
+     * @returns {number}
+     */
+    get pagesPerEraseBlock() {
+        return this._pagesPerEraseBlock
+    }
+
+    /**
+     * Retorna a quantidade total de clusters
+     * no cartão de memória (padrão: 8192).
+     * 
+     * @returns {number}
+     */
+    get clustersPerCard() {
+        return this._clustersPerCard
+    }
+
+    /**
+     * Retorna o offset para o diretório raiz (padrão: 41).
+     * 
+     * @returns {number} 
+     */
+    get rootDirOffset() {
+        return this._rootDirOffset
+    }
+
+    /**
+     * Retorna o primeiro cluster do diretório raiz
+     * relativo ao rootDirOffset (padrão: 0).
+     * 
+     * @returns {number} 
+     */
+    get rootDirCluster() {
+        return this._rootDirCluster
+    }
+
+    /**
+     * Retorna o primeiro bloco usado como
+     * backup quando for apagar os dados (padrão: 1023).
+     * 
+     * @returns {number} 
+     */
+    get backupBlock1() {
+        return this._backupBlock1
+    }
+
+    /**
+     * Retorna o segundo bloco usado como
+     * backup quando for apagar os dados (padrão: 1022).
+     * 
+     * Este bloco deve ser apagado para conter apenas uns.
+     * 
+     * @returns {number} 
+     */
+    get backupBlock2() {
+        return this._backupBlock2
+    }
+
+    /**
+     * Retorna uma Lista
+     * de Clusters Indiretos (padrão: 8).
+     * 
+     * Em um Memory Card de 8MB deve
+     * haver apenas um Cluster indireto.
+     * 
+     * @returns {Int32Array} 
+     */
+    get indirectFATClusterList() {
+        return this._indirectFATClusterList
+    }
+
+    /**
+     * Retorna uma Lista De Blocos de Apagamento
+     * defeituosos e que não devem
+     * ser usados (padrão: -1).
+     * 
+     * @returns {Int32Array} 
+     */
+    get badBlockEraseList() {
+        return this._badBlockEraseList
+    }
+
+    /**
+     * Retorna o tipo do Memory Card (padrão: 2).
+     * 
+     * Deve retornar o número 2 para indicar que é
+     * um Memory Card do Playstation 2.
+     * 
+     * @returns {number}
+     */
+    get memoryCardType() {
+        return this._memoryCardType
+    }
+
+    /**
+     * Retorna as flags de configuração do Memory Card.
+     * 
+     * @returns {Object} Um objeto contendo as seguintes propriedades:
+     * - **ECC**: Indica se o cartão suporta código de correção de erros (Error Correction Code).
+     * - **BAD_BLOCKS**: Indica se o cartão pode conter blocos corrompidos.
+     * - **ERASE_ZEROS**: Indica se os blocos apagados têm todos os bits definidos como zero.
+     */
+    get memoryCardFlags() {
+        return this._memoryCardFlags
+    }
+
+    /**
+     * Define uma mensagem de erro e marca o cartão como inválido.
+     * 
+     * @param {string} message Mensagem de erro a ser associada ao estado inválido.
+     */
+    _setInvalidCardMessage(message) {
+        this._isValid = [false, message]
+    }
+
+    /**
+     * Define os metadados contidos no Super Bloco.
+     */
+    _setMetaData() {
+        this._version = this._getVersion()
+
+        this._pageSize = this._getPageSize()
+        this._pagesPerCluster = this._getPagesPerCluster()
+        this._pagesPerEraseBlock = this._getPagesPerEraseBlock()
+        this._clustersPerCard = this._getClustersPerCard()
+
+        this._rootDirOffset = this._getRootDirOffset()
+        this._rootDirCluster = this._getRootDirCluster()
+
+        this._backupBlock1 = this._getBackupBlock1()
+        this._backupBlock2 = this._getBackupBlock2()
+
+        this._indirectFATClusterList = this._getIndirectFATClusterList()
+        this._badBlockEraseList = this._getBadBlockEraseList()
+
+        this._memoryCardType = this._getMemoryCardType()
+        this._memoryCardFlags = this._getMemoryCardFlags()
+    }
+
+    /**
+     * Verifica se o cartão de memória é válido.
+     */
+    _validateCard() {
+        if (!this._checkIsFormatted()) {
+            this._setInvalidCardMessage("The memory card is not formatted.")
+        }
+
+        if (this.memoryCardType !== 2) {
+            this._setInvalidCardMessage("The memory card must be for the PlayStation 2.")
+            return
+        }
+
+        if (!this._checkIsValidVersion()) {
+            this._setInvalidCardMessage(`The version ${this.version} is invalid and not in the format 1.x.0.0 on the memory card.`)
+            return
+        }
+
+        this._isValid = [true, ""]
+    }
+
+    /**
+     * Verifica se o cartão de memória
+     * tem ao menos os 340 bytes do Super Bloco.
+     * 
+     * @returns {boolean}
+     */
+    _checkMinSize() {
+        /**
+         * Se o super bloco não estiver presente, não é possível
+         * fazer a leitura dos metadados necessários.
+         */
+        return this._mc.length > 340
+    }
+
+    /**
+     * Verifica se o cartão de memória está formatado.
+     * 
+     * @returns {boolean}
+     */
+    _checkIsFormatted() {
+        /*
+         * A string "Sony PS2 Memory Card Format " está
+         * definida no offset 0 e ocupa 7 palavras (28 bytes).
+         */
+        const [offsetStart, offsetEnd] = [0, BYTES.WORD * 7]
+        const firstLetter = 83 // Letra S
+
+        if (this._mc[offsetStart] !== firstLetter) { // Caso o primeiro byte falhe, não verificaremos os demais
+            return false
+        }
+
+        /*
+         * A soma de todos os 28 bytes deve ser
+         * igual ao valor da constante abaixo
+         * para validarmos a string esperada.
+         */
+        const expectedSignature = 2426
+        return validateByteChecksum(this._mc, [offsetStart, offsetEnd], expectedSignature)
+    }
+
+    /**
+     * Obtêm a versão do formato usado no cartão de memória.
+     * 
+     * @returns {string}
+     */
+    _getVersion() {
+        /*
+         * A versão do Memory Card está definida no offset 28
+         * e ocupa 3 palavras (12 bytes).
+         */
+        const [offset, size] = [28, BYTES.WORD * 3]
+        const bytes = new Uint8Array(this._mc.buffer, offset, size)
+
+        return readBytesAsString(bytes)
+    }
+
+    /**
+     * Verifica se a versão do cartão de memória é válido (padrão: 1.x.0.0).
+     * 
+     * @returns {boolean}
+     */
+    _checkIsValidVersion() {
+        const expectedVersion = /^1\.\d+\.0\.0$/
+
+        return expectedVersion.test(this.version)
+    }
+
+    /**
+     * Obtêm o tamanho da página em bytes.
+     * 
+     * @returns {number}
+     */
+    _getPageSize() {
+        /*
+         * O tamanho da página está definido
+         * no offset 40 e ocupa meia-palavra (2 bytes).
+         */
+        const offset = 40
+        return readUint16(this._mc, offset)
+    }
+
+    /**
+     * Obtêm a quantidade de páginas por cluster.
+     * 
+     * @returns {number}
+     */
+    _getPagesPerCluster() {
+        /*
+         * A quantidade de páginas por cluster está definido
+         * no offset 42 e ocupa meia-palavra (2 bytes).
+         */
+        const offset = 42
+        return readUint16(this._mc, offset)
+    }
+
+    /**
+     * Obtêm o número de páginas que devem ser apagadas por vez.
+     * 
+     * @returns {number}
+     */
+    _getPagesPerEraseBlock() {
+        /*
+         * A quantidade de páginas que devem
+         * ser apagadas por vez está definida
+         * no offset 44 e ocupa meia-palavra (2 bytes).
+         */
+        const offset = 44
+        return readUint16(this._mc, offset)
+    }
+
+    /**
+     * Obtêm a quantidade total de clusters no cartão de memória.
+     * 
+     * @returns {number}
+     */
+    _getClustersPerCard() {
+        /*
+         * A quantidade de clusters que o
+         * cartão possui está definida
+         * no offset 48 e ocupa 1 palavra (4 bytes).
+         */
+        const offset = 48
+        return readInt32(this._mc, offset)
+    }
+
+    /**
+     * Obtêm o offset do diretório raiz.
+     * 
+     * @returns {number}
+     */
+    _getRootDirOffset() {
+        /*
+         * O diretório raiz está definido
+         * no offset 52 e ocupa 1 palavra (4 bytes).
+         */
+        const offset = 52
+        return readInt32(this._mc, offset)
+    }
+
+    /**
+     * Obtêm o primeiro cluster do diretório raiz.
+     * 
+     * @returns {number}
+     */
+    _getRootDirCluster() {
+        /*
+         * O cluster está definido
+         * no offset 60 e ocupa 1 palavra (4 bytes).
+         */
+        const offset = 60
+        return readInt32(this._mc, offset)
+    }
+
+    /**
+     * Obtêm o bloco de backup 1.
+     * 
+     * @returns {number}
+     */
+    _getBackupBlock1() {
+        /*
+         * O bloco de backup 1 está definido
+         * no offset 64 e ocupa 1 palavra (4 bytes).
+         */
+        const offset = 64
+        return readInt32(this._mc, offset)
+    }
+
+    /**
+    * Obtêm o bloco de backup 2.
+    * 
+    * @returns {number}
+    */
+    _getBackupBlock2() {
+        /*
+         * O bloco de backup 2 está definido
+         * no offset 68 e ocupa 1 palavra (4 bytes).
+         */
+        const offset = 68
+        return readInt32(this._mc, offset)
+    }
+
+    /**
+     * Obtêm uma Lista de Clusters Indiretos.
+     * 
+     * @returns {Int32Array}
+     */
+    _getIndirectFATClusterList() {
+        /**
+         * Uma lista de 32 posições, cada posição ocupando
+         * 1 palavra (4 bytes), começando no offset 80.
+         */
+        const [offsetStart, offsetEnd] = [80, 80 + (BYTES.WORD * 32)]
+        return readInt32List(this._mc, [offsetStart, offsetEnd], false)
+    }
+
+    /**
+     * Obtêm uma Lista de BadBlocks defeituosos.
+     * 
+     * @returns {Int32Array}
+     */
+    _getBadBlockEraseList() {
+        /**
+         * Uma lista de 32 posições, cada posição ocupando
+         * 1 palavra (4 bytes), começando no offset 208.
+         */
+        const [offsetStart, offsetEnd] = [208, 208 + (BYTES.WORD * 32)]
+        return readInt32List(this._mc, [offsetStart, offsetEnd], false)
+    }
+
+    /**
+     * Obtêm o tipo do Cartão de Memória.
+     * 
+     * @returns {number}
+     */
+    _getMemoryCardType() {
+        /*
+         * O tipo do Memory Card está definido
+         * no offset 336 e ocupa 1 byte.
+         */
+        const offset = 336
+
+        return this._mc[offset]
+    }
+
+    /**
+     * Obtém as flags de configuração do Memory Card.
+     * 
+     * @returns {Object}
+     */
+    _getMemoryCardFlags() {
+        /*
+         * As flags estão definidas no offset 337
+         * e são representadas por um único byte que
+         * contêm informações sobre suporte a ECC, blocos corrompidos
+         * e comportamento de apagamento.
+         */
+        const offset = 337
+        const flags = this._mc[offset]
+
+        return {
+            ECC: (flags & 1 << 0) !== 0,
+            BAD_BLOCKS: (flags & 1 << 3) !== 0,
+            ERASE_ZEROS: (flags & 1 << 4) !== 0
+        }
+    }
 }
