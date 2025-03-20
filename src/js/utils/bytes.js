@@ -3,7 +3,7 @@
  */
 export const BYTES = Object.freeze({
     /**
-     * Word ou Palavara é utilizado para
+     * Word ou Palavra é utilizado para
      * informar um tamanho de 4 bytes.
      */
     WORD: 4,

@@ -1,8 +1,8 @@
 import { BYTES, readBytesAsString, validateByteChecksum, readUint16, readInt32, readInt32List } from "../utils/bytes.js"
 
 /**
- * Realiza a leitura e escrita de imagens do cartão de memória do
- * Playstation 2 a partir de um Array de Bytes.
+ * Realiza a leitura e escrita em uma imagem do
+ * cartão de memória do Playstation 2.
  */
 export class MemoryCard {
     /**
@@ -31,7 +31,7 @@ export class MemoryCard {
     /**
      * Retorna se o cartão de memória é válido.
      * 
-     * @returns {[boolean, string]} Um vetor onde:
+     * @returns {[boolean, string]} Um array onde:
      * - O primeiro elemento (boolean) indica se o cartão é válido.
      * - O segundo elemento (string) contém uma mensagem de erro, se houver.
      */
@@ -229,6 +229,11 @@ export class MemoryCard {
             return
         }
 
+        if (!this._checkCardSizeByTotalClusters()) {
+            this._setInvalidCardMessage("The memory card must be larger than the total size of usable clusters.")
+            return
+        }
+
         this._isValid = [true, ""]
     }
 
@@ -259,7 +264,7 @@ export class MemoryCard {
         const [offsetStart, offsetEnd] = [0, BYTES.WORD * 7]
         const firstLetter = 83 // Letra S
 
-        if (this._mc[offsetStart] !== firstLetter) { // Caso o primeiro byte falhe, não verificaremos os demais
+        if (this._mc[offsetStart] !== firstLetter) { // Se o primeiro byte falhar, os demais não serão verificados.
             return false
         }
 
@@ -270,6 +275,32 @@ export class MemoryCard {
          */
         const expectedSignature = 2426
         return validateByteChecksum(this._mc, [offsetStart, offsetEnd], expectedSignature)
+    }
+
+    /**
+     * Verifica se há mais bytes no cartão de memória
+     * do que os para os clusters utilizáveis.
+     * 
+     * @returns {boolean}
+     */
+    _checkCardSizeByTotalClusters() {
+        /*
+         * Descobrindo o tamanho do cluster em bytes
+         * por meio do tamanho da página e da quantidade
+         * de páginas por cluster.
+         */
+        const clusterSize = this.pageSize * this.pagesPerCluster
+        /*
+         * Descobrindo o tamanho total em bytes
+         * que todos os cluster ocupam.
+         */
+        const totalClusterSize = clusterSize * this.clustersPerCard
+
+        /*
+         * O cartão de memória deve ter mais bytes que os cluster,
+         * pois ainda há clusters reservados.
+         */
+        return this._mc.length > totalClusterSize
     }
 
     /**

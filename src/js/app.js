@@ -25,6 +25,7 @@ const run = [
     (mc) => ["BadBlock Erase List:", mc.badBlockEraseList],
     (mc) => ["Memory Card Type:", mc.memoryCardType],
     (mc) => ["Memory Card Flags:", mc.memoryCardFlags],
+    (mc) => ["Memory File Tree:", mc.fileTree],
 ]
 
 function playground(data) {
@@ -34,7 +35,8 @@ function playground(data) {
     const [validCard, error] = mc.isValid
 
     if (validCard) {
-        console.log("Formatado!!! Total de bytes:", bytes.length)
+        console.log("Formatado!!!")
+        console.log("Total de bytes:", bytes.length)
 
         run.forEach((func) => console.log(...func(mc)))
     } else {
