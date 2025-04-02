@@ -29,6 +29,15 @@ export class MemoryCard {
     }
 
     /**
+     * Retorna os bytes do cartão de memória.
+     * 
+     * @returns {Uint8Array}
+     */
+    get bytes() {
+        return this._mc
+    }
+
+    /**
      * Retorna se o cartão de memória é válido.
      * 
      * @returns {[boolean, string]} Um array onde:
@@ -67,9 +76,18 @@ export class MemoryCard {
     }
 
     /**
+     * Retorna o tamanho em bytes de um cluster (padrão: 1024 bytes).
+     * 
+     * @returns {number}
+     */
+    get clusterSize() {
+        return this._clusterSize
+    }
+
+    /**
      * Retorna a quantidade de páginas que devem ser apagadas por vez (padrão: 16).
      * 
-     * No sistema do Memory Card ao apagar um dado, deve-se apagar
+     * No sistema do Memory Card, ao apagar um dado, deve-se apagar
      * uma certa quantidade de páginas de uma única vez e depois
      * reescrever as informações que não eram para serem apagadas.
      * 
@@ -195,6 +213,7 @@ export class MemoryCard {
 
         this._pageSize = this._getPageSize()
         this._pagesPerCluster = this._getPagesPerCluster()
+        this._clusterSize = this._getClusterSize()
         this._pagesPerEraseBlock = this._getPagesPerEraseBlock()
         this._clustersPerCard = this._getClustersPerCard()
 
@@ -248,7 +267,7 @@ export class MemoryCard {
          * Se o super bloco não estiver presente, não é possível
          * fazer a leitura dos metadados necessários.
          */
-        return this._mc.length > 340
+        return this.bytes.length > 340
     }
 
     /**
@@ -264,7 +283,7 @@ export class MemoryCard {
         const [offsetStart, offsetEnd] = [0, BYTES.WORD * 7]
         const firstLetter = 83 // Letra S
 
-        if (this._mc[offsetStart] !== firstLetter) { // Se o primeiro byte falhar, os demais não serão verificados.
+        if (this.bytes[offsetStart] !== firstLetter) { // Se o primeiro byte falhar, os demais não serão verificados.
             return false
         }
 
@@ -274,7 +293,7 @@ export class MemoryCard {
          * para validarmos a string esperada.
          */
         const expectedSignature = 2426
-        return validateByteChecksum(this._mc, [offsetStart, offsetEnd], expectedSignature)
+        return validateByteChecksum(this.bytes, [offsetStart, offsetEnd], expectedSignature)
     }
 
     /**
@@ -285,22 +304,16 @@ export class MemoryCard {
      */
     _checkCardSizeByTotalClusters() {
         /*
-         * Descobrindo o tamanho do cluster em bytes
-         * por meio do tamanho da página e da quantidade
-         * de páginas por cluster.
-         */
-        const clusterSize = this.pageSize * this.pagesPerCluster
-        /*
          * Descobrindo o tamanho total em bytes
          * que todos os cluster ocupam.
          */
-        const totalClusterSize = clusterSize * this.clustersPerCard
+        const totalClusterSize = this.clusterSize * this.clustersPerCard
 
         /*
          * O cartão de memória deve ter mais bytes que os cluster,
          * pois ainda há clusters reservados.
          */
-        return this._mc.length > totalClusterSize
+        return this.bytes.length > totalClusterSize
     }
 
     /**
@@ -314,7 +327,7 @@ export class MemoryCard {
          * e ocupa 3 palavras (12 bytes).
          */
         const [offset, size] = [28, BYTES.WORD * 3]
-        const bytes = new Uint8Array(this._mc.buffer, offset, size)
+        const bytes = new Uint8Array(this.bytes.buffer, offset, size)
 
         return readBytesAsString(bytes)
     }
@@ -341,7 +354,16 @@ export class MemoryCard {
          * no offset 40 e ocupa meia-palavra (2 bytes).
          */
         const offset = 40
-        return readUint16(this._mc, offset)
+        return readUint16(this.bytes, offset)
+    }
+
+    /**
+     * Calcula o tamanho em bytes de um cluster.
+     * 
+     * @returns {number}
+     */
+    _getClusterSize() {
+        return this.pageSize * this.pagesPerCluster
     }
 
     /**
@@ -355,7 +377,7 @@ export class MemoryCard {
          * no offset 42 e ocupa meia-palavra (2 bytes).
          */
         const offset = 42
-        return readUint16(this._mc, offset)
+        return readUint16(this.bytes, offset)
     }
 
     /**
@@ -370,7 +392,7 @@ export class MemoryCard {
          * no offset 44 e ocupa meia-palavra (2 bytes).
          */
         const offset = 44
-        return readUint16(this._mc, offset)
+        return readUint16(this.bytes, offset)
     }
 
     /**
@@ -385,7 +407,7 @@ export class MemoryCard {
          * no offset 48 e ocupa 1 palavra (4 bytes).
          */
         const offset = 48
-        return readInt32(this._mc, offset)
+        return readInt32(this.bytes, offset)
     }
 
     /**
@@ -399,7 +421,7 @@ export class MemoryCard {
          * no offset 52 e ocupa 1 palavra (4 bytes).
          */
         const offset = 52
-        return readInt32(this._mc, offset)
+        return readInt32(this.bytes, offset)
     }
 
     /**
@@ -413,7 +435,7 @@ export class MemoryCard {
          * no offset 60 e ocupa 1 palavra (4 bytes).
          */
         const offset = 60
-        return readInt32(this._mc, offset)
+        return readInt32(this.bytes, offset)
     }
 
     /**
@@ -427,7 +449,7 @@ export class MemoryCard {
          * no offset 64 e ocupa 1 palavra (4 bytes).
          */
         const offset = 64
-        return readInt32(this._mc, offset)
+        return readInt32(this.bytes, offset)
     }
 
     /**
@@ -441,7 +463,7 @@ export class MemoryCard {
          * no offset 68 e ocupa 1 palavra (4 bytes).
          */
         const offset = 68
-        return readInt32(this._mc, offset)
+        return readInt32(this.bytes, offset)
     }
 
     /**
@@ -455,7 +477,7 @@ export class MemoryCard {
          * 1 palavra (4 bytes), começando no offset 80.
          */
         const [offsetStart, offsetEnd] = [80, 80 + (BYTES.WORD * 32)]
-        return readInt32List(this._mc, [offsetStart, offsetEnd], false)
+        return readInt32List(this.bytes, [offsetStart, offsetEnd], false)
     }
 
     /**
@@ -469,7 +491,7 @@ export class MemoryCard {
          * 1 palavra (4 bytes), começando no offset 208.
          */
         const [offsetStart, offsetEnd] = [208, 208 + (BYTES.WORD * 32)]
-        return readInt32List(this._mc, [offsetStart, offsetEnd], false)
+        return readInt32List(this.bytes, [offsetStart, offsetEnd], false)
     }
 
     /**
@@ -484,7 +506,7 @@ export class MemoryCard {
          */
         const offset = 336
 
-        return this._mc[offset]
+        return this.bytes[offset]
     }
 
     /**
@@ -500,7 +522,7 @@ export class MemoryCard {
          * e comportamento de apagamento.
          */
         const offset = 337
-        const flags = this._mc[offset]
+        const flags = this.bytes[offset]
 
         return {
             ECC: (flags & 1 << 0) !== 0,

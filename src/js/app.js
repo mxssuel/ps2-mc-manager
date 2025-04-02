@@ -15,6 +15,7 @@ const run = [
 
     (mc) => ["Page Size:", mc.pageSize],
     (mc) => ["Pages Per Cluster:", mc.pagesPerCluster],
+    (mc) => ["Cluster Size:", mc.clusterSize],
     (mc) => ["Pages Per Erase Block:", mc.pagesPerEraseBlock],
     (mc) => ["Clusters Per Card:", mc.clustersPerCard],
     (mc) => ["Root Dir Offset:", mc.rootDirOffset],
@@ -25,7 +26,6 @@ const run = [
     (mc) => ["BadBlock Erase List:", mc.badBlockEraseList],
     (mc) => ["Memory Card Type:", mc.memoryCardType],
     (mc) => ["Memory Card Flags:", mc.memoryCardFlags],
-    (mc) => ["Memory File Tree:", mc.fileTree],
 ]
 
 function playground(data) {
