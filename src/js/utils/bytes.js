@@ -3,6 +3,12 @@
  */
 export const BYTES = Object.freeze({
     /**
+     * Single Byte ou Único Byte
+     * é utilizado para informar um
+     * tamanho de apenas 1 byte.
+     */
+    SINGLE_BYTE: 1,
+    /**
      * Word ou Palavra é utilizado para
      * informar um tamanho de 4 bytes.
      */
