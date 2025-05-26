@@ -81,6 +81,7 @@ export class MemoryCard {
     _validateCard() {
         if (!this.superblock.isFormatted) {
             this._setInvalidCardMessage("The memory card is not formatted.")
+            return
         }
 
         if (this.superblock.memoryCardType !== 2) {
