@@ -1,0 +1,26 @@
+{
+  "name": "ps2-mc-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NisaelMoreiraGomes/ps2-mc-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NisaelMoreiraGomes/ps2-mc-manager/issues"
+  },
+  "homepage": "https://github.com/NisaelMoreiraGomes/ps2-mc-manager#readme",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.1.4",
+    "vitest": "^3.1.4"
+  }
+}

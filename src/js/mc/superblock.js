@@ -11,7 +11,7 @@ export class SuperBlock {
      * @param {Uint8Array} bytes Array de bytes que representa o conteúdo do cartão de memória.
      */
     constructor(bytes) {
-        this._sp = bytes
+        this._sb = bytes
         this._setMetaData()
         this._validateSuperBlock()
     }
@@ -22,7 +22,7 @@ export class SuperBlock {
      * @returns {Uint8Array}
      */
     get bytes() {
-        return this._sp
+        return this._sb
     }
 
     /**
