@@ -90,7 +90,7 @@ export class MemoryCard {
         }
 
         if (!this.superblock.isValidVersion) {
-            this._setInvalidCardMessage(`The version ${this.version} is invalid and not in the format 1.x.0.0 on the memory card.`)
+            this._setInvalidCardMessage(`The version ${this.superblock.version} is invalid and not in the format 1.x.0.0 on the memory card.`)
             return
         }
 
