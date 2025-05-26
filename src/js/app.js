@@ -11,21 +11,21 @@ file.addEventListener("change", () => {
 })
 
 const run = [
-    (mc) => ["Versão:", mc.version],
+    (mc) => ["Versão:", mc.superblock.version],
 
-    (mc) => ["Page Size:", mc.pageSize],
-    (mc) => ["Pages Per Cluster:", mc.pagesPerCluster],
-    (mc) => ["Cluster Size:", mc.clusterSize],
-    (mc) => ["Pages Per Erase Block:", mc.pagesPerEraseBlock],
-    (mc) => ["Clusters Per Card:", mc.clustersPerCard],
-    (mc) => ["Root Dir Offset:", mc.rootDirOffset],
-    (mc) => ["Root Dir Cluster:", mc.rootDirCluster],
-    (mc) => ["Backup Block 1:", mc.backupBlock1],
-    (mc) => ["Backup Block 2:", mc.backupBlock2],
-    (mc) => ["Indirect FAT Cluster List:", mc.indirectFATClusterList],
-    (mc) => ["BadBlock Erase List:", mc.badBlockEraseList],
-    (mc) => ["Memory Card Type:", mc.memoryCardType],
-    (mc) => ["Memory Card Flags:", mc.memoryCardFlags],
+    (mc) => ["Page Size:", mc.superblock.pageSize],
+    (mc) => ["Pages Per Cluster:", mc.superblock.pagesPerCluster],
+    (mc) => ["Cluster Size:", mc.superblock.clusterSize],
+    (mc) => ["Pages Per Erase Block:", mc.superblock.pagesPerEraseBlock],
+    (mc) => ["Clusters Per Card:", mc.superblock.clustersPerCard],
+    (mc) => ["Root Dir Offset:", mc.superblock.rootDirOffset],
+    (mc) => ["Root Dir Cluster:", mc.superblock.rootDirCluster],
+    (mc) => ["Backup Block 1:", mc.superblock.backupBlock1],
+    (mc) => ["Backup Block 2:", mc.superblock.backupBlock2],
+    (mc) => ["Indirect FAT Cluster List:", mc.superblock.indirectFATClusterList],
+    (mc) => ["BadBlock Erase List:", mc.superblock.badBlockEraseList],
+    (mc) => ["Memory Card Type:", mc.superblock.memoryCardType],
+    (mc) => ["Memory Card Flags:", mc.superblock.memoryCardFlags],
 ]
 
 function playground(data) {
