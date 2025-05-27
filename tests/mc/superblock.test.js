@@ -7,7 +7,7 @@ describe("SuperBlock", () => {
     const sb = new SuperBlock(SUPERBLOCK)
 
     it("get bytes", () => {
-        expect(sb.bytes).toEqual(SUPERBLOCK)
+        expect(sb.bytes).toBe(SUPERBLOCK)
     })
 
     it("get version", () => {
@@ -109,7 +109,7 @@ describe("Invalid SuperBlock", () => {
         /**
          * Como nosso super bloco mocado tem apenas 340 bytes
          * esse método deve retornar verdadeiro, já que nossos bytes
-         * não é superior ao tamanho total dos clusters.
+         * não são superior ao tamanho total dos clusters.
          */
         expect(sb.isValidCardSizeByTotalClusters).toBe(false)
     })
