@@ -24,7 +24,7 @@ export class MemoryCard {
             this._superblock = new SuperBlock(this.bytes)
             this._validateCard()
         } else {
-            this._setInvalidCardMessage("The memory card must have at least 340 bytes.")
+            this._setInvalidCardMessage("The memory card must have at least 341 bytes.")
         }
     }
 

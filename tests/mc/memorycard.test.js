@@ -21,9 +21,9 @@ describe("MemoryCard", () => {
 })
 
 describe("Invalid MemoryCard", () => {
-    it("Not Min 340 Bytes", () => {
+    it("Not Min 341 Bytes", () => {
         const not_min_size_mc = new MemoryCard(NOT_MIN_SIZE_MEMORYCARD)
-        const result = [false, "The memory card must have at least 340 bytes."]
+        const result = [false, "The memory card must have at least 341 bytes."]
 
         expect(not_min_size_mc.isValid).toEqual(result)
     })
@@ -71,12 +71,11 @@ describe("Invalid MemoryCard", () => {
     it("Not Valid Card Size By Total Clusters", () => {
         /**
          * Aqui o truque é simples, reduzimos uns 10% do valor
-         * do MC, isso faz com que o valor dos clusters sejam
-         * maiores que o valor do MC, não deixando espaço para
+         * do MC, isso faz com que o valor dos clusters seja
+         * maior que o valor do MC, não deixando espaço para
          * clusters reservados.
          */
         const NOT_VALID_CARD_BY_TOTAL_CLUSTERS = new Uint8Array(MEMORYCARD.buffer, 0, MEMORYCARD.length * 0.9)
-        console.log(MEMORYCARD.length * 0.8)
 
         const not_valid_mc_card_by_total_clusters = new MemoryCard(NOT_VALID_CARD_BY_TOTAL_CLUSTERS)
         const result = [false, "The memory card must be larger than the total size of usable clusters."]
