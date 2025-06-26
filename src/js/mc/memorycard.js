@@ -37,6 +37,11 @@ export class MemoryCard {
         return this._mc
     }
 
+    /**
+     * Retorna uma instância do Super Bloco.
+     * 
+     * @returns {SuperBlock}
+     */
     get superblock() {
         return this._superblock
     }

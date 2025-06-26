@@ -39,7 +39,7 @@ describe("Invalid MemoryCard", () => {
         const NOT_PS2_MEMORYCARD = new Uint8Array(MEMORYCARD)
 
         /**
-         * Altermos o offset 336 que
+         * Alteramos o offset 336 que
          * normalmente tem o número 2
          * para indicar que se trata de um
          * MC do PS2 para o valor 1, falhando
