@@ -84,7 +84,7 @@ export function validateByteListRangeSize(bytes, [start, end], byteSize, inclusi
     }
 
     if (bytesLen % byteSize !== 0) {
-        `Calculated byte length (${bytesLen} bytes) is not a multiple of ${byteSize} size, which is required for reading values.`
+        throw `Calculated byte length (${bytesLen} bytes) is not a multiple of ${byteSize} size, which is required for reading values.`
     }
 }
 
@@ -176,7 +176,7 @@ export function readInt32List(bytes, [start, end], inclusive = true) {
 
     const list = new Int32Array(arrayLen)
     for (let i = 0; i < arrayLen; ++i) {
-        list[i] = view.getInt32(i * byteSize, true)
+        list[i] = view.getInt32(i * byteSize, true) // true = little-endian
     }
 
     return list

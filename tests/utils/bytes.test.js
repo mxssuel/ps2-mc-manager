@@ -17,8 +17,8 @@ describe("Const Bytes", () => {
     })
 })
 
-describe("Functions", () => {
-    it("Read Uint16", () => {
+describe("Byte Functions", () => {
+    it("Reads Uint16 values with little-endian byte order", () => {
         const bytes = new Uint8Array([1, 1, 2, 3])
         const offset = 1
         const result = 513
@@ -26,7 +26,7 @@ describe("Functions", () => {
         expect(readUint16(bytes, offset)).toBe(result)
     })
 
-    it("Read Int32", () => {
+    it("Reads Int32 values with little-endian byte order", () => {
         const bytes = new Uint8Array([1, 1, 2, 3, 4])
         const offset = 1
         const result = 67305985
@@ -34,7 +34,7 @@ describe("Functions", () => {
         expect(readInt32(bytes, offset)).toBe(result)
     })
 
-    it("Read Int32 List Not Inclusive", () => {
+    it("Read Int32 List Values Not Inclusive with little-endian byte order", () => {
         const bytes = SUPERBLOCK
         const offsetStart = 80
         const offsetEnd = 80 + (BYTES.WORD * 32)
@@ -45,7 +45,7 @@ describe("Functions", () => {
         expect(readInt32List(bytes, [offsetStart, offsetEnd], false)).toEqual(result)
     })
 
-    it("Read Int32 List Inclusive", () => {
+    it("Read Int32 List Values Inclusive with little-endian byte order", () => {
         const bytes = SUPERBLOCK
         const offsetStart = 80
         const offsetEnd = 79 + (BYTES.WORD * 32)
@@ -73,5 +73,125 @@ describe("Functions", () => {
         const result = true
 
         expect(validateByteChecksum(bytes, [offsetStart, offsetEnd], signature)).toBe(result)
+    })
+})
+
+describe("Error Byte Functions", () => {
+    describe("Read Uint16", () => {
+        it("Is Not Uint8Array", () => {
+            const bytes = [10, 20]
+            const offset = 0
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readUint16(bytes, offset)).toThrow(result)
+        })
+
+        it("Is Empty Uint8Array", () => {
+            const bytes = new Uint8Array([])
+            const offset = 0
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readUint16(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Is NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3])
+            const offset = "2s"
+            const result = "Invalid 'offset' parameter. It must be a non-negative number."
+
+            expect(() => readUint16(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Is Negative", () => {
+            const bytes = new Uint8Array([1, 2, 3])
+            const offset = -1
+            const result = "Invalid 'offset' parameter. It must be a non-negative number."
+
+            expect(() => readUint16(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds", () => {
+            const bytes = new Uint8Array([1, 2, 3])
+            const offset = 2
+            const result = "Attempted to read out of bounds. Offset 2 (length 2) exceeds available bytes length 3."
+
+            expect(() => readUint16(bytes, offset)).toThrow(result)
+        })
+    })
+
+    describe("Read Int32", () => {
+        it("Is Not Uint8Array", () => {
+            const bytes = [10, 20, 30, 40]
+            const offset = 0
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readInt32(bytes, offset)).toThrow(result)
+        })
+
+        it("Is Empty Uint8Array", () => {
+            const bytes = new Uint8Array([])
+            const offset = 0
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readInt32(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Is NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4])
+            const offset = "2s"
+            const result = "Invalid 'offset' parameter. It must be a non-negative number."
+
+            expect(() => readInt32(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Is Negative", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4])
+            const offset = -1
+            const result = "Invalid 'offset' parameter. It must be a non-negative number."
+
+            expect(() => readInt32(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4])
+            const offset = 1
+            const result = "Attempted to read out of bounds. Offset 1 (length 4) exceeds available bytes length 4."
+
+            expect(() => readInt32(bytes, offset)).toThrow(result)
+        })
+    })
+
+    describe("Read Int 32 List", () => {
+        it("Is Not Uint8Array", () => {
+            const bytes = [10, 20, 30, 40, 50, 60, 70, 80]
+            const offset = [0, 1]
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Is Empty Uint8Array", () => {
+            const bytes = new Uint8Array([])
+            const offset = [0, 1]
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+    })
+
+    describe("Read Byte As String", () => {
+        it("Is Not Uint8Array", () => {
+            const bytes = [10, 20]
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readBytesAsString(bytes)).toThrow(result)
+        })
+
+        it("Is Empty Uint8Array", () => {
+            const bytes = new Uint8Array([])
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => readBytesAsString(bytes)).toThrow(result)
+        })
     })
 })
