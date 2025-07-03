@@ -22,7 +22,7 @@ export const BYTES = Object.freeze({
 
 /**
  * Verifica se é um Array de Bytes e se não está vazio.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  */
 export function validateByte(bytes) {
@@ -33,7 +33,7 @@ export function validateByte(bytes) {
 
 /**
  * Verifica se o Offset é um número e se não é negativo.
- * 
+ *
  * @param {number} offset Índice inicial para leitura.
  */
 export function validateOffset(offset) {
@@ -44,7 +44,7 @@ export function validateOffset(offset) {
 
 /**
  * Realiza a validação do Offset no Intervalo do Array de Bytes.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {number} offset Índice inicial para leitura.
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
@@ -58,7 +58,7 @@ export function validateOffsetRange(bytes, offset, byteSize) {
 /**
  * Verifica se um intervalo (start, end) é do tipo numérico e se
  * estão em um intervalo válido.
- * 
+ *
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  */
 export function validateByteRange([start, end]) {
@@ -69,7 +69,7 @@ export function validateByteRange([start, end]) {
 
 /**
  * Realiza a validação do intervalo (start e end) em relação ao tamanho total do array.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
@@ -90,7 +90,7 @@ export function validateByteListRangeSize(bytes, [start, end], byteSize, inclusi
 
 /**
  * Realiza a validação do Array de Bytes que será trabalhado.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {number} offset Índice inicial para leitura.
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
@@ -103,11 +103,11 @@ export function validateBytes(bytes, offset, byteSize) {
 
 /**
  * Realiza a validação de uma lista de bytes.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
- * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true). 
+ * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
  */
 export function validateByteList(bytes, [start, end], byteSize, inclusive = true) {
     validateByte(bytes)
@@ -117,7 +117,7 @@ export function validateByteList(bytes, [start, end], byteSize, inclusive = true
 
 /**
  * Lê um valor de 16 bits (uint16) a partir de um array de bytes.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {number} offset Índice inicial para leitura.
  * @returns {number} Valor de 16 bits.
@@ -134,7 +134,7 @@ export function readUint16(bytes, offset) {
 
 /**
  * Lê um valor de 32 bits a partir de um array de bytes.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {number} offset Índice inicial para leitura.
  * @returns {number} Valor de 32 bits.
@@ -157,7 +157,7 @@ export function readInt32(bytes, offset) {
 
 /**
  * Lê uma lista de valores de 32 bits a partir de uma lista de bytes.
- * 
+ *
  * @param {Uint8Array} bytes Lista de bytes.
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
@@ -184,7 +184,7 @@ export function readInt32List(bytes, [start, end], inclusive = true) {
 
 /**
  * Converte um intervalo de bytes em uma string, removendo caracteres nulos (\x00).
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @returns {string} String resultante, sem caracteres nulos.
  */
@@ -198,7 +198,7 @@ export function readBytesAsString(bytes) {
 
 /**
  * Verifica se a soma dos bytes no intervalo [start, end] corresponde à assinatura esperada.
- * 
+ *
  * @param {Uint8Array} bytes Array de bytes.
  * @param {[number, number]} range Intervalo de bytes [start, end] a ser verificado.
  * @param {number} expectedSignature Assinatura esperada (soma dos bytes no intervalo).

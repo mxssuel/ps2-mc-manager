@@ -8,7 +8,7 @@ export class MemoryCard {
     /**
      * Construtor da classe MemoryCard.
      * Inicializa o cartão de memória com os bytes fornecidos e realiza a validação inicial.
-     * 
+     *
      * @param {Uint8Array} bytes Array de bytes que representa o conteúdo do cartão de memória.
      */
     constructor(bytes) {
@@ -30,7 +30,7 @@ export class MemoryCard {
 
     /**
      * Retorna os bytes do cartão de memória.
-     * 
+     *
      * @returns {Uint8Array}
      */
     get bytes() {
@@ -39,7 +39,7 @@ export class MemoryCard {
 
     /**
      * Retorna uma instância do Super Bloco.
-     * 
+     *
      * @returns {SuperBlock}
      */
     get superblock() {
@@ -48,7 +48,7 @@ export class MemoryCard {
 
     /**
      * Retorna se o cartão de memória é válido.
-     * 
+     *
      * @returns {[boolean, string]} Um array onde:
      * - O primeiro elemento (boolean) indica se o cartão é válido.
      * - O segundo elemento (string) contém uma mensagem de erro, se houver.
@@ -60,7 +60,7 @@ export class MemoryCard {
     /**
      * Verifica se o cartão de memória
      * tem ao menos os 340 bytes do Super Bloco.
-     * 
+     *
      * @returns {boolean}
      */
     _checkMinSize() {
@@ -73,7 +73,7 @@ export class MemoryCard {
 
     /**
      * Define uma mensagem de erro e marca o cartão como inválido.
-     * 
+     *
      * @param {string} message Mensagem de erro a ser associada ao estado inválido.
      */
     _setInvalidCardMessage(message) {

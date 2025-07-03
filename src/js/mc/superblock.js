@@ -7,7 +7,7 @@ export class SuperBlock {
     /**
      * Construtor da classe SuperBlock.
      * Lê e valida os bytes iniciais do super bloco.
-     * 
+     *
      * @param {Uint8Array} bytes Array de bytes que representa o conteúdo do cartão de memória.
      */
     constructor(bytes) {
@@ -18,7 +18,7 @@ export class SuperBlock {
 
     /**
      * Retorna os bytes do cartão de memória.
-     * 
+     *
      * @returns {Uint8Array}
      */
     get bytes() {
@@ -27,7 +27,7 @@ export class SuperBlock {
 
     /**
      * Retorna a versão do formato usado no cartão de memória (padrão: 1.2.0.0).
-     * 
+     *
      * @returns {string} 1.x.0.0
      */
     get version() {
@@ -36,7 +36,7 @@ export class SuperBlock {
 
     /**
      * Retorna se o cartão de memória está formatado.
-     * 
+     *
      * @returns {boolean}
      */
     get isFormatted() {
@@ -45,7 +45,7 @@ export class SuperBlock {
 
     /**
      * Retorna se a versão do cartão de memória é válido (padrão: 1.x.0.0).
-     * 
+     *
      * @returns {boolean}
      */
     get isValidVersion() {
@@ -55,7 +55,7 @@ export class SuperBlock {
     /**
      * Retorna se há mais bytes no cartão de memória
      * do que os para os clusters utilizáveis.
-     * 
+     *
      * @returns {boolean}
      */
     get isValidCardSizeByTotalClusters() {
@@ -64,7 +64,7 @@ export class SuperBlock {
 
     /**
      * Retorna o tamanho em bytes de cada página (padrão: 512 bytes).
-     * 
+     *
      * @returns {number}
      */
     get pageSize() {
@@ -73,7 +73,7 @@ export class SuperBlock {
 
     /**
      * Retorna a quantidade páginas que um cluster possui (padrão: 2 páginas).
-     * 
+     *
      * @returns {number}
      */
     get pagesPerCluster() {
@@ -82,7 +82,7 @@ export class SuperBlock {
 
     /**
      * Retorna o tamanho em bytes de um cluster (padrão: 1024 bytes).
-     * 
+     *
      * @returns {number}
      */
     get clusterSize() {
@@ -91,11 +91,11 @@ export class SuperBlock {
 
     /**
      * Retorna a quantidade de páginas que devem ser apagadas por vez (padrão: 16).
-     * 
+     *
      * No sistema do Memory Card, ao apagar um dado, deve-se apagar
      * uma certa quantidade de páginas de uma única vez e depois
      * reescrever as informações que não eram para serem apagadas.
-     * 
+     *
      * @returns {number}
      */
     get pagesPerEraseBlock() {
@@ -105,7 +105,7 @@ export class SuperBlock {
     /**
      * Retorna a quantidade total de clusters
      * no cartão de memória (padrão: 8192).
-     * 
+     *
      * @returns {number}
      */
     get clustersPerCard() {
@@ -114,8 +114,8 @@ export class SuperBlock {
 
     /**
      * Retorna o offset para o diretório raiz (padrão: 41).
-     * 
-     * @returns {number} 
+     *
+     * @returns {number}
      */
     get rootDirOffset() {
         return this._rootDirOffset
@@ -124,8 +124,8 @@ export class SuperBlock {
     /**
      * Retorna o primeiro cluster do diretório raiz
      * relativo ao rootDirOffset (padrão: 0).
-     * 
-     * @returns {number} 
+     *
+     * @returns {number}
      */
     get rootDirCluster() {
         return this._rootDirCluster
@@ -134,8 +134,8 @@ export class SuperBlock {
     /**
      * Retorna o primeiro bloco usado como
      * backup quando for apagar os dados (padrão: 1023).
-     * 
-     * @returns {number} 
+     *
+     * @returns {number}
      */
     get backupBlock1() {
         return this._backupBlock1
@@ -144,10 +144,10 @@ export class SuperBlock {
     /**
      * Retorna o segundo bloco usado como
      * backup quando for apagar os dados (padrão: 1022).
-     * 
+     *
      * Este bloco deve ser apagado para conter apenas uns.
-     * 
-     * @returns {number} 
+     *
+     * @returns {number}
      */
     get backupBlock2() {
         return this._backupBlock2
@@ -156,11 +156,11 @@ export class SuperBlock {
     /**
      * Retorna uma Lista
      * de Clusters Indiretos (padrão: 8).
-     * 
+     *
      * Em um Memory Card de 8MB deve
      * haver apenas um Cluster indireto.
-     * 
-     * @returns {Int32Array} 
+     *
+     * @returns {Int32Array}
      */
     get indirectFATClusterList() {
         return this._indirectFATClusterList
@@ -170,8 +170,8 @@ export class SuperBlock {
      * Retorna uma Lista De Blocos de Apagamento
      * defeituosos e que não devem
      * ser usados (padrão: -1).
-     * 
-     * @returns {Int32Array} 
+     *
+     * @returns {Int32Array}
      */
     get badBlockEraseList() {
         return this._badBlockEraseList
@@ -179,10 +179,10 @@ export class SuperBlock {
 
     /**
      * Retorna o tipo do Memory Card (padrão: 2).
-     * 
+     *
      * Deve retornar o número 2 para indicar que é
      * um Memory Card do Playstation 2.
-     * 
+     *
      * @returns {number}
      */
     get memoryCardType() {
@@ -191,7 +191,7 @@ export class SuperBlock {
 
     /**
      * Retorna as flags de configuração do Memory Card.
-     * 
+     *
      * @returns {Object} Um objeto contendo as seguintes propriedades:
      * - **ECC**: Indica se o cartão suporta código de correção de erros (Error Correction Code).
      * - **BAD_BLOCKS**: Indica se o cartão pode conter blocos corrompidos.
@@ -239,7 +239,7 @@ export class SuperBlock {
 
     /**
      * Verifica se o cartão de memória está formatado.
-     * 
+     *
      * @returns {boolean}
      */
     _checkIsFormatted() {
@@ -266,7 +266,7 @@ export class SuperBlock {
     /**
      * Verifica se há mais bytes no cartão de memória
      * do que os para os clusters utilizáveis.
-     * 
+     *
      * @returns {boolean}
      */
     _checkCardSizeByTotalClusters() {
@@ -285,7 +285,7 @@ export class SuperBlock {
 
     /**
      * Obtêm a versão do formato usado no cartão de memória.
-     * 
+     *
      * @returns {string}
      */
     _getVersion() {
@@ -301,7 +301,7 @@ export class SuperBlock {
 
     /**
      * Verifica se a versão do cartão de memória é válido (padrão: 1.x.0.0).
-     * 
+     *
      * @returns {boolean}
      */
     _checkIsValidVersion() {
@@ -312,7 +312,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o tamanho da página em bytes.
-     * 
+     *
      * @returns {number}
      */
     _getPageSize() {
@@ -326,7 +326,7 @@ export class SuperBlock {
 
     /**
      * Calcula o tamanho em bytes de um cluster.
-     * 
+     *
      * @returns {number}
      */
     _getClusterSize() {
@@ -335,7 +335,7 @@ export class SuperBlock {
 
     /**
      * Obtêm a quantidade de páginas por cluster.
-     * 
+     *
      * @returns {number}
      */
     _getPagesPerCluster() {
@@ -349,7 +349,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o número de páginas que devem ser apagadas por vez.
-     * 
+     *
      * @returns {number}
      */
     _getPagesPerEraseBlock() {
@@ -364,7 +364,7 @@ export class SuperBlock {
 
     /**
      * Obtêm a quantidade total de clusters no cartão de memória.
-     * 
+     *
      * @returns {number}
      */
     _getClustersPerCard() {
@@ -379,7 +379,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o offset do diretório raiz.
-     * 
+     *
      * @returns {number}
      */
     _getRootDirOffset() {
@@ -393,7 +393,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o primeiro cluster do diretório raiz.
-     * 
+     *
      * @returns {number}
      */
     _getRootDirCluster() {
@@ -407,7 +407,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o bloco de backup 1.
-     * 
+     *
      * @returns {number}
      */
     _getBackupBlock1() {
@@ -421,7 +421,7 @@ export class SuperBlock {
 
     /**
     * Obtêm o bloco de backup 2.
-    * 
+    *
     * @returns {number}
     */
     _getBackupBlock2() {
@@ -435,7 +435,7 @@ export class SuperBlock {
 
     /**
      * Obtêm uma Lista de Clusters Indiretos.
-     * 
+     *
      * @returns {Int32Array}
      */
     _getIndirectFATClusterList() {
@@ -449,7 +449,7 @@ export class SuperBlock {
 
     /**
      * Obtêm uma Lista de BadBlocks defeituosos.
-     * 
+     *
      * @returns {Int32Array}
      */
     _getBadBlockEraseList() {
@@ -463,7 +463,7 @@ export class SuperBlock {
 
     /**
      * Obtêm o tipo do Cartão de Memória.
-     * 
+     *
      * @returns {number}
      */
     _getMemoryCardType() {
@@ -478,7 +478,7 @@ export class SuperBlock {
 
     /**
      * Obtém as flags de configuração do Memory Card.
-     * 
+     *
      * @returns {Object}
      */
     _getMemoryCardFlags() {
