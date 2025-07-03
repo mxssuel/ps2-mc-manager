@@ -4,13 +4,13 @@ Gestor de Saves do Playstation 2 escrito 100% em Javascript Vanilla e inspirado 
 
 ## Roadmap
 
-Esse é o mapa geral do projeto: 
+Esse é o mapa geral do projeto:
 
-- [X] Entender a Organização do MemoryCard.
-- [X] Entender o Super Bloco.
-- [X] Ler o Super Bloco.
-- [X] Validar o Super Bloco.
-- [X] Validar o MemoryCard
+- [x] Entender a Organização do MemoryCard.
+- [x] Entender o Super Bloco.
+- [x] Ler o Super Bloco.
+- [x] Validar o Super Bloco.
+- [x] Validar o MemoryCard
 - [ ] Entender o Sistema de Arquivos.
 - [ ] Ler os Arquivos.
 - [ ] Entender o Sistema de Correção de Erros.

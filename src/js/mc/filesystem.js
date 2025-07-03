@@ -6,21 +6,18 @@ import { MemoryCard } from "./memorycard.js"
  * do Playstation 2.
  */
 export class FileSystem {
-    /**
-     * Construtor da Classe FileSystem.
-     * @param {MemoryCard} mc Instância do Objeto MemoryCard.
-     */
-    constructor(mc) {
-    }
+  /**
+   * Construtor da Classe FileSystem.
+   * @param {MemoryCard} mc Instância do Objeto MemoryCard.
+   */
+  constructor(mc) {}
 
-    /**
-     * Retorna uma lista com todos os saves.
-     * @returns {Array<Object>} Um array de objetos contendo as seguintes propriedades:
-     * - **name**: Nome do Jogo
-     * - **icon**: Ícone do Jogo
-     * - **clusterIndex**: Em qual cluster o jogo está salvo.
-     */
-    saveTree() {
-
-    }
+  /**
+   * Retorna uma lista com todos os saves.
+   * @returns {Array<Object>} Um array de objetos contendo as seguintes propriedades:
+   * - **name**: Nome do Jogo
+   * - **icon**: Ícone do Jogo
+   * - **clusterIndex**: Em qual cluster o jogo está salvo.
+   */
+  saveTree() {}
 }

@@ -2,22 +2,22 @@
  * Tamanho em Bytes.
  */
 export const BYTES = Object.freeze({
-    /**
-     * Single Byte ou Único Byte
-     * é utilizado para informar um
-     * tamanho de apenas 1 byte.
-     */
-    SINGLE_BYTE: 1,
-    /**
-     * Word ou Palavra é utilizado para
-     * informar um tamanho de 4 bytes.
-     */
-    WORD: 4,
-    /**
-     * Half Word ou Meia-Palavra é utilizado para
-     * informar um tamanho de 2 bytes.
-     */
-    HALF_WORD: 2
+  /**
+   * Single Byte ou Único Byte
+   * é utilizado para informar um
+   * tamanho de apenas 1 byte.
+   */
+  SINGLE_BYTE: 1,
+  /**
+   * Word ou Palavra é utilizado para
+   * informar um tamanho de 4 bytes.
+   */
+  WORD: 4,
+  /**
+   * Half Word ou Meia-Palavra é utilizado para
+   * informar um tamanho de 2 bytes.
+   */
+  HALF_WORD: 2,
 })
 
 /**
@@ -26,9 +26,9 @@ export const BYTES = Object.freeze({
  * @param {Uint8Array} bytes Array de bytes.
  */
 export function validateByte(bytes) {
-    if (!(bytes instanceof Uint8Array) || bytes.length === 0) {
-        throw "Input 'bytes' must be a non-empty Uint8Array."
-    }
+  if (!(bytes instanceof Uint8Array) || bytes.length === 0) {
+    throw "Input 'bytes' must be a non-empty Uint8Array."
+  }
 }
 
 /**
@@ -37,9 +37,9 @@ export function validateByte(bytes) {
  * @param {number} offset Índice inicial para leitura.
  */
 export function validateOffset(offset) {
-    if (typeof offset !== 'number' || offset < 0) {
-        throw "Invalid 'offset' parameter. It must be a non-negative number."
-    }
+  if (typeof offset !== "number" || offset < 0) {
+    throw "Invalid 'offset' parameter. It must be a non-negative number."
+  }
 }
 
 /**
@@ -50,9 +50,9 @@ export function validateOffset(offset) {
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
  */
 export function validateOffsetRange(bytes, offset, byteSize) {
-    if (offset + byteSize > bytes.length) {
-        throw `Attempted to read out of bounds. Offset ${offset} (length ${byteSize}) exceeds available bytes length ${bytes.length}.`
-    }
+  if (offset + byteSize > bytes.length) {
+    throw `Attempted to read out of bounds. Offset ${offset} (length ${byteSize}) exceeds available bytes length ${bytes.length}.`
+  }
 }
 
 /**
@@ -62,9 +62,15 @@ export function validateOffsetRange(bytes, offset, byteSize) {
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  */
 export function validateByteRange([start, end]) {
-    if (typeof start !== 'number' || typeof end !== 'number' || start < 0 || end < 0 || start >= end) {
-        throw "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
-    }
+  if (
+    typeof start !== "number" ||
+    typeof end !== "number" ||
+    start < 0 ||
+    end < 0 ||
+    start >= end
+  ) {
+    throw "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+  }
 }
 
 /**
@@ -76,16 +82,16 @@ export function validateByteRange([start, end]) {
  * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
  */
 export function validateByteListRangeSize(bytes, [start, end], byteSize, inclusive = true) {
-    const inclusiveOffset = inclusive ? 1 : 0
-    const bytesLen = end - start + inclusiveOffset
+  const inclusiveOffset = inclusive ? 1 : 0
+  const bytesLen = end - start + inclusiveOffset
 
-    if (start + bytesLen > bytes.length) {
-        throw `Attempted to read out of bounds. Range [${start}, ${end}] (length ${byteSize}) exceeds available bytes length ${bytes.length}.`
-    }
+  if (start + bytesLen > bytes.length) {
+    throw `Attempted to read out of bounds. Range [${start}, ${end}] (length ${byteSize}) exceeds available bytes length ${bytes.length}.`
+  }
 
-    if (bytesLen % byteSize !== 0) {
-        throw `Calculated byte length (${bytesLen} bytes) is not a multiple of ${byteSize} size, which is required for reading values.`
-    }
+  if (bytesLen % byteSize !== 0) {
+    throw `Calculated byte length (${bytesLen} bytes) is not a multiple of ${byteSize} size, which is required for reading values.`
+  }
 }
 
 /**
@@ -96,9 +102,9 @@ export function validateByteListRangeSize(bytes, [start, end], byteSize, inclusi
  * @param {*} byteSize Tamanho do Byte que será trabalhado (SINGLE_BYTE, HALF_WORD, WORD).
  */
 export function validateBytes(bytes, offset, byteSize) {
-    validateByte(bytes)
-    validateOffset(offset)
-    validateOffsetRange(bytes, offset, byteSize)
+  validateByte(bytes)
+  validateOffset(offset)
+  validateOffsetRange(bytes, offset, byteSize)
 }
 
 /**
@@ -110,9 +116,9 @@ export function validateBytes(bytes, offset, byteSize) {
  * @param {boolean} inclusive Define se o intervalo é inclusivo (padrão: true).
  */
 export function validateByteList(bytes, [start, end], byteSize, inclusive = true) {
-    validateByte(bytes)
-    validateByteRange([start, end])
-    validateByteListRangeSize(bytes, [start, end], byteSize, inclusive)
+  validateByte(bytes)
+  validateByteRange([start, end])
+  validateByteListRangeSize(bytes, [start, end], byteSize, inclusive)
 }
 
 /**
@@ -123,13 +129,13 @@ export function validateByteList(bytes, [start, end], byteSize, inclusive = true
  * @returns {number} Valor de 16 bits.
  */
 export function readUint16(bytes, offset) {
-    //return bytes[offset] | (bytes[offset + 1] << 8)
+  //return bytes[offset] | (bytes[offset + 1] << 8)
 
-    const byteSize = BYTES.HALF_WORD
-    validateBytes(bytes, offset, byteSize)
+  const byteSize = BYTES.HALF_WORD
+  validateBytes(bytes, offset, byteSize)
 
-    const view = new DataView(bytes.buffer, offset, byteSize)
-    return view.getUint16(0, true) // true = little-endian
+  const view = new DataView(bytes.buffer, offset, byteSize)
+  return view.getUint16(0, true) // true = little-endian
 }
 
 /**
@@ -140,19 +146,19 @@ export function readUint16(bytes, offset) {
  * @returns {number} Valor de 32 bits.
  */
 export function readInt32(bytes, offset) {
-    //return (view[0] << 0) | (view[1] << 8) | (view[2] << 16) | (view[3] << 24)
+  //return (view[0] << 0) | (view[1] << 8) | (view[2] << 16) | (view[3] << 24)
 
-    const byteSize = BYTES.WORD
-    validateBytes(bytes, offset, byteSize)
+  const byteSize = BYTES.WORD
+  validateBytes(bytes, offset, byteSize)
 
-    /*
-     * Aprendi muito com a solução acima, entretanto, assim
-     * fica mais simples de manter, sem falar que já lida com
-     * os inteiros (com e sem sinal) de uma melhor maneira, o que
-     * não ocorre na expressão acima.
-     */
-    const view = new DataView(bytes.buffer, offset, byteSize)
-    return view.getInt32(0, true) // true = little-endian
+  /*
+   * Aprendi muito com a solução acima, entretanto, assim
+   * fica mais simples de manter, sem falar que já lida com
+   * os inteiros (com e sem sinal) de uma melhor maneira, o que
+   * não ocorre na expressão acima.
+   */
+  const view = new DataView(bytes.buffer, offset, byteSize)
+  return view.getInt32(0, true) // true = little-endian
 }
 
 /**
@@ -164,22 +170,22 @@ export function readInt32(bytes, offset) {
  * @returns {Int32Array} Lista de valores de 32 bits.
  */
 export function readInt32List(bytes, [start, end], inclusive = true) {
-    const byteSize = BYTES.WORD
-    validateByteList(bytes, [start, end], byteSize, inclusive)
+  const byteSize = BYTES.WORD
+  validateByteList(bytes, [start, end], byteSize, inclusive)
 
-    // Ajusta o cálculo do tamanho do intervalo com base no tipo (inclusivo/exclusivo)
-    const inclusiveOffset = inclusive ? 1 : 0
-    const bytesLen = end - start + inclusiveOffset
+  // Ajusta o cálculo do tamanho do intervalo com base no tipo (inclusivo/exclusivo)
+  const inclusiveOffset = inclusive ? 1 : 0
+  const bytesLen = end - start + inclusiveOffset
 
-    const arrayLen = bytesLen / byteSize
-    const view = new DataView(bytes.buffer, start, bytesLen)
+  const arrayLen = bytesLen / byteSize
+  const view = new DataView(bytes.buffer, start, bytesLen)
 
-    const list = new Int32Array(arrayLen)
-    for (let i = 0; i < arrayLen; ++i) {
-        list[i] = view.getInt32(i * byteSize, true) // true = little-endian
-    }
+  const list = new Int32Array(arrayLen)
+  for (let i = 0; i < arrayLen; ++i) {
+    list[i] = view.getInt32(i * byteSize, true) // true = little-endian
+  }
 
-    return list
+  return list
 }
 
 /**
@@ -189,11 +195,9 @@ export function readInt32List(bytes, [start, end], inclusive = true) {
  * @returns {string} String resultante, sem caracteres nulos.
  */
 export function readBytesAsString(bytes) {
-    validateByte(bytes)
+  validateByte(bytes)
 
-    return new TextDecoder()
-        .decode(bytes)
-        .replaceAll("\x00", "")
+  return new TextDecoder().decode(bytes).replaceAll("\x00", "")
 }
 
 /**
@@ -205,14 +209,14 @@ export function readBytesAsString(bytes) {
  * @returns {boolean} True se a assinatura for válida, caso contrário, false.
  */
 export function validateByteChecksum(bytes, [start, end], expectedSignature) {
-    const byteSize = BYTES.SINGLE_BYTE
-    validateByteList(bytes, [start, end], byteSize, false)
+  const byteSize = BYTES.SINGLE_BYTE
+  validateByteList(bytes, [start, end], byteSize, false)
 
-    let signature = 0
+  let signature = 0
 
-    for (let i = start; i < end; ++i) {
-        signature += bytes[i]
-    }
+  for (let i = start; i < end; ++i) {
+    signature += bytes[i]
+  }
 
-    return signature === expectedSignature
+  return signature === expectedSignature
 }
