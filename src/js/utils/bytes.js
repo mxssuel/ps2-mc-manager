@@ -62,7 +62,7 @@ export function validateOffsetRange(bytes, offset, byteSize) {
  * @param {[number, number]} range - Intervalo de bytes [start, end] a ser lido.
  */
 export function validateByteRange([start, end]) {
-    if (typeof start !== 'number' || typeof end !== 'number' || start < 0 || end < 0 || start > end) {
+    if (typeof start !== 'number' || typeof end !== 'number' || start < 0 || end < 0 || start >= end) {
         throw "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
     }
 }

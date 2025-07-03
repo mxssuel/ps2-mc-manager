@@ -177,6 +177,94 @@ describe("Error Byte Functions", () => {
 
             expect(() => readInt32List(bytes, offset)).toThrow(result)
         })
+
+        it("Offset Out Of Bounds - Start NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = ["a", 0]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - End NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, "a"]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [-1, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - End < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, -1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start & End < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [-1, -1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start === End", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [1, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start > End", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [2, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Exceeded maximum number of bytes - Inclusive", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, 12]
+            const result = "Attempted to read out of bounds. Range [0, 12] (length 4) exceeds available bytes length 12."
+
+            expect(() => readInt32List(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Exceeded maximum number of bytes - Exclusive", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, 13]
+            const result = "Attempted to read out of bounds. Range [0, 13] (length 4) exceeds available bytes length 12."
+
+            expect(() => readInt32List(bytes, offset, false)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - It is not a multiple of 4 - Uint8", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+            const offset = [0, 13]
+            const result = "Calculated byte length (13 bytes) is not a multiple of 4 size, which is required for reading values."
+
+            expect(() => readInt32List(bytes, offset, false)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - It is not a multiple of 4 - Range", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, 11]
+            const result = "Calculated byte length (11 bytes) is not a multiple of 4 size, which is required for reading values."
+
+            expect(() => readInt32List(bytes, offset, false)).toThrow(result)
+        })
     })
 
     describe("Read Byte As String", () => {
@@ -192,6 +280,88 @@ describe("Error Byte Functions", () => {
             const result = "Input 'bytes' must be a non-empty Uint8Array."
 
             expect(() => readBytesAsString(bytes)).toThrow(result)
+        })
+    })
+
+    describe("Validate Byte Checksum", () => {
+        it("Is Not Uint8Array", () => {
+            const bytes = [10, 20, 30, 40, 50, 60, 70, 80]
+            const offset = [0, 1]
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Is Empty Uint8Array", () => {
+            const bytes = new Uint8Array([])
+            const offset = [0, 1]
+            const result = "Input 'bytes' must be a non-empty Uint8Array."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = ["a", 0]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - End NaN", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, "a"]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [-1, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - End < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, -1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start & End < 0", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [-1, -1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start === End", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [1, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Start > End", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [2, 1]
+            const result = "Invalid 'start' or 'end' parameters. They must be non-negative numbers where 'start' <= 'end'."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
+        })
+
+        it("Offset Out Of Bounds - Exceeded maximum number of bytes - Only Exclusive", () => {
+            const bytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            const offset = [0, 13]
+            const result = "Attempted to read out of bounds. Range [0, 13] (length 1) exceeds available bytes length 12."
+
+            expect(() => validateByteChecksum(bytes, offset)).toThrow(result)
         })
     })
 })
