@@ -36,43 +36,39 @@ describe("Byte Functions", () => {
 
     it("Read Int32 List Values Not Inclusive with little-endian byte order", () => {
         const bytes = SUPERBLOCK
-        const offsetStart = 80
-        const offsetEnd = 80 + (BYTES.WORD * 32)
+        const offset = [80, 80 + (BYTES.WORD * 32)]
         const result = new Int32Array([
             8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         ])
 
-        expect(readInt32List(bytes, [offsetStart, offsetEnd], false)).toEqual(result)
+        expect(readInt32List(bytes, offset, false)).toEqual(result)
     })
 
     it("Read Int32 List Values Inclusive with little-endian byte order", () => {
         const bytes = SUPERBLOCK
-        const offsetStart = 80
-        const offsetEnd = 79 + (BYTES.WORD * 32)
+        const offset = [80, 79 + (BYTES.WORD * 32)]
         const result = new Int32Array([
             8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         ])
 
-        expect(readInt32List(bytes, [offsetStart, offsetEnd], true)).toEqual(result)
+        expect(readInt32List(bytes, offset, true)).toEqual(result)
     })
 
     it("Read Byte As String", () => {
         const bytes = new Uint8Array(SUPERBLOCK.buffer, 0, 28)
-        const offsetStart = 0
-        const offsetEnd = 28
+        const offset = [0, 28]
         const result = "Sony PS2 Memory Card Format "
 
-        expect(readBytesAsString(bytes, [offsetStart, offsetEnd])).toBe(result)
+        expect(readBytesAsString(bytes, offset)).toBe(result)
     })
 
     it("Validate Byte Checksum", () => {
         const bytes = SUPERBLOCK
-        const offsetStart = 0
-        const offsetEnd = 28
+        const offset = [0, 28]
         const signature = 2426
         const result = true
 
-        expect(validateByteChecksum(bytes, [offsetStart, offsetEnd], signature)).toBe(result)
+        expect(validateByteChecksum(bytes, offset, signature)).toBe(result)
     })
 })
 
